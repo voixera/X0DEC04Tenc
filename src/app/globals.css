@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #090909;
+  --color-bg-secondary: #111111;
+  --color-surface: #181818;
+  --color-border: rgba(255, 255, 255, 0.05);
+  --color-border-hover: rgba(255, 255, 255, 0.1);
+  --color-accent: #e5e5e5;
+  --color-accent-dim: #a3a3a3;
+  --color-muted: #737373;
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+  --radius-base: 10px;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("https://fonts.gstatic.com/s/inter/v18/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2")
+    format("woff2");
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+::selection {
+  background: rgba(229, 229, 229, 0.15);
+  color: #e5e5e5;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-accent);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 240ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 240ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 240ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface) 25%, rgba(255,255,255,0.04) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-base);
+}
