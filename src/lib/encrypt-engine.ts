@@ -140,6 +140,38 @@ function buildDecryptionRuntime(
   return lines.join("\n");
 }
 
+function buildLayeredRuntime(payload: string): string {
+  const encoded = Buffer.from(payload, "utf8").toString("base64");
+  return `-- X0DEC04T Encrypt Protected (Layered)
+local _b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+local function _d(data)
+  data = data:gsub('[^' .. _b .. '=]', '')
+  return (data:gsub('.', function(x)
+    if x == '=' then return '' end
+    local r, f = '', (_b:find(x, 1, true) - 1)
+    for i = 6, 1, -1 do
+      r = r .. (f % 2^i - f % 2^(i - 1) > 0 and '1' or '0')
+    end
+    return r
+  end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+    if #x ~= 8 then return '' end
+    local c = 0
+    for i = 1, 8 do
+      if x:sub(i, i) == '1' then
+        c = c + 2^(8 - i)
+      end
+    end
+    return string.char(c)
+  end))
+end
+local _src = _d("${encoded}")
+local _load = load or loadstring
+local _fn, _err = _load(_src)
+if not _fn then error(_err) end
+return _fn()
+`;
+}
+
 export function encryptLuaCode(
   code: string,
   settings: EncryptionSettings
@@ -244,8 +276,7 @@ export function encryptLuaCode(
   }
 
   if (settings.layeredEncryption) {
-    const encoded = Buffer.from(output).toString("base64");
-    output = `-- X0DEC04T Encrypt Protected (Layered)\nlocal _c="${encoded}"\nlocal _d={}for i=1,#_c do _d[#_d+1]=_c:sub(i,i)end\nlocal _r=""for i=1,#_d do\nlocal b=_d[i]\nlocal v=0\nif b>="A"and b<="Z"then v=b:byte()-65\nelseif b>="a"and b<="z"then v=b:byte()-71\nelseif b>="0"and b<="9"then v=b:byte()+4\nelseif b=="+"then v=62\nelseif b=="/"then v=63\nend\n_r=_r..string.char(v)\nend\nload(_r)()\n`;
+    output = buildLayeredRuntime(output);
   }
 
   if (settings.compressOutput) {
