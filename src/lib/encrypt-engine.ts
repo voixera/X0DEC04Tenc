@@ -166,8 +166,11 @@ local function _d(data)
 end
 local _src = _d("${encoded}")
 local _load = load or loadstring
+if not _load then
+  error("X0DEC04T Encrypt: this Lua runtime does not provide load or loadstring")
+end
 local _fn, _err = _load(_src)
-if not _fn then error(_err) end
+if not _fn then error(_err or "X0DEC04T Encrypt: failed to load protected payload") end
 return _fn()
 `;
 }
