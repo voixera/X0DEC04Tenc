@@ -78,7 +78,7 @@ const settingsMeta: {
     key: "layeredEncryption",
     label: "Layered Encryption",
     description:
-      "Wraps the entire output in a Base64-encoded loader for additional protection.",
+      "Wraps the entire output in a compact loader for an obfuscated, Luraph-style feel.",
     type: "toggle",
   },
   {
@@ -122,6 +122,28 @@ export default function SettingsPage() {
     });
   };
 
+  const applyLuraphStylePreset = () => {
+    updateSettings({
+      renameVariable: true,
+      renameFunction: true,
+      renameLocal: true,
+      encryptString: true,
+      encodeConstant: true,
+      removeComments: true,
+      compressOutput: true,
+      protectGlobal: true,
+      minify: true,
+      layeredEncryption: true,
+      randomIdentifierLength: 16,
+    });
+    addNotification({
+      id: generateId(),
+      type: "success",
+      title: "Luraph Style",
+      message: "Applied a compact layered obfuscation preset",
+    });
+  };
+
   const handleReset = () => {
     resetSettings();
     addNotification({
@@ -148,6 +170,12 @@ export default function SettingsPage() {
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#e5e5e5] text-[#090909] text-[11px] font-medium hover:bg-[#d4d4d4] transition-all duration-120"
         >
           Very Safe Mode
+        </button>
+        <button
+          onClick={applyLuraphStylePreset}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] border border-[var(--color-border)] text-[11px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+        >
+          Luraph Style
         </button>
         <button
           onClick={handleReset}
