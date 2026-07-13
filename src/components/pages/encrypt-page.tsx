@@ -35,13 +35,13 @@ function SettingsPanel() {
     { key: "renameVariable", label: "Rename Variables", description: "Obfuscate variable names" },
     { key: "renameFunction", label: "Rename Functions", description: "Obfuscate function names" },
     { key: "renameLocal", label: "Rename Locals", description: "Obfuscate local identifiers" },
-    { key: "encryptString", label: "Encrypt Strings", description: "AES encrypt string literals" },
+    { key: "encryptString", label: "Encrypt Strings", description: "Authenticated protection for string literals" },
     { key: "encodeConstant", label: "Encode Constants", description: "Obfuscate numeric constants" },
     { key: "removeComments", label: "Remove Comments", description: "Strip all comments" },
     { key: "compressOutput", label: "Compress Output", description: "Single-line output" },
     { key: "protectGlobal", label: "Protect Globals", description: "Sandbox global environment" },
     { key: "minify", label: "Minify", description: "Remove whitespace" },
-    { key: "layeredEncryption", label: "Layered Encryption", description: "Base64 + loader wrap" },
+    { key: "layeredEncryption", label: "Layered Encryption", description: "Extra wrapping layer; keep off for safest runtime" },
   ];
 
   return (

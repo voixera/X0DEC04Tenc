@@ -36,7 +36,7 @@ const settingsMeta: {
     key: "encryptString",
     label: "Encrypt Strings",
     description:
-      "Encrypts all string literals using AES-128-GCM with per-string unique keys.",
+      "Encrypts all string literals using authenticated per-string protection.",
     type: "toggle",
   },
   {
@@ -101,6 +101,27 @@ export default function SettingsPage() {
   const { settings, updateSettings, resetSettings } = useEncryptStore();
   const { addNotification } = useNotificationStore();
 
+  const applyVerySafePreset = () => {
+    updateSettings({
+      renameVariable: true,
+      renameFunction: true,
+      renameLocal: true,
+      encryptString: true,
+      encodeConstant: true,
+      removeComments: true,
+      compressOutput: false,
+      protectGlobal: false,
+      minify: false,
+      layeredEncryption: false,
+    });
+    addNotification({
+      id: generateId(),
+      type: "success",
+      title: "Very Safe Mode",
+      message: "Applied a conservative preset focused on runtime stability",
+    });
+  };
+
   const handleReset = () => {
     resetSettings();
     addNotification({
@@ -122,6 +143,12 @@ export default function SettingsPage() {
             Configure how your Lua files are processed and encrypted.
           </p>
         </div>
+        <button
+          onClick={applyVerySafePreset}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#e5e5e5] text-[#090909] text-[11px] font-medium hover:bg-[#d4d4d4] transition-all duration-120"
+        >
+          Very Safe Mode
+        </button>
         <button
           onClick={handleReset}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111111] border border-[var(--color-border)] text-[11px] text-[#525252] hover:text-[#a3a3a3] transition-all duration-120"
