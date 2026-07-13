@@ -6,6 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import type { EncryptionSettings } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -65,33 +66,41 @@ export async function POST(request: NextRequest) {
 
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 200);
 
-    await db.insert(encryptionHistory).values({
-      fileName: safeName,
-      originalSize: result.stats.originalSize,
-      encryptedSize: result.stats.encryptedSize,
-      encryptionTimeMs: encryptionTime,
-      success: true,
-      settings: JSON.stringify(settings),
-    });
-
-    const existing = await db.select().from(encryptionStats).limit(1);
-    if (existing.length === 0) {
-      await db.insert(encryptionStats).values({
-        totalFiles: 1,
-        totalEncrypted: 1,
-        totalFailed: 0,
-        avgProcessTimeMs: encryptionTime,
+    try {
+      await db.insert(encryptionHistory).values({
+        fileName: safeName,
+        originalSize: result.stats.originalSize,
+        encryptedSize: result.stats.encryptedSize,
+        encryptionTimeMs: encryptionTime,
+        success: true,
+        settings: JSON.stringify(settings),
       });
-    } else {
-      await db
-        .update(encryptionStats)
-        .set({
-          totalFiles: sql`${encryptionStats.totalFiles} + 1`,
-          totalEncrypted: sql`${encryptionStats.totalEncrypted} + 1`,
-          avgProcessTimeMs: sql`(${encryptionStats.avgProcessTimeMs} * ${encryptionStats.totalFiles} + ${encryptionTime}) / (${encryptionStats.totalFiles} + 1)`,
-          updatedAt: new Date(),
-        })
-        .where(eq(encryptionStats.id, existing[0].id));
+    } catch (historyError) {
+      console.error("[encrypt] Failed to save history entry", historyError);
+    }
+
+    try {
+      const existing = await db.select().from(encryptionStats).limit(1);
+      if (existing.length === 0) {
+        await db.insert(encryptionStats).values({
+          totalFiles: 1,
+          totalEncrypted: 1,
+          totalFailed: 0,
+          avgProcessTimeMs: encryptionTime,
+        });
+      } else {
+        await db
+          .update(encryptionStats)
+          .set({
+            totalFiles: sql`${encryptionStats.totalFiles} + 1`,
+            totalEncrypted: sql`${encryptionStats.totalEncrypted} + 1`,
+            avgProcessTimeMs: sql`(${encryptionStats.avgProcessTimeMs} * ${encryptionStats.totalFiles} + ${encryptionTime}) / (${encryptionStats.totalFiles} + 1)`,
+            updatedAt: new Date(),
+          })
+          .where(eq(encryptionStats.id, existing[0].id));
+      }
+    } catch (statsError) {
+      console.error("[encrypt] Failed to update stats", statsError);
     }
 
     return NextResponse.json({
