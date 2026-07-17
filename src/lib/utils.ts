@@ -43,7 +43,8 @@ export function sanitizeFilename(name: string): string {
 }
 
 export function isLuaFile(name: string): boolean {
-  return name.toLowerCase().endsWith(".lua");
+  const lower = name.toLowerCase();
+  return lower.endsWith(".lua") || lower.endsWith(".luau");
 }
 
 export function validateFileSize(size: number, maxMb: number = 10): boolean {

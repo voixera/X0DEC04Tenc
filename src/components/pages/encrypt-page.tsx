@@ -366,7 +366,7 @@ export default function EncryptPage() {
 
       for (const f of fileList) {
         if (!isLuaFile(f.name)) {
-          errors.push(`${f.name}: Not a .lua file`);
+          errors.push(`${f.name}: Not a .lua or .luau file`);
           continue;
         }
         if (!validateFileSize(f.size)) {
@@ -594,7 +594,7 @@ export default function EncryptPage() {
               )}
             />
             <p className="text-[13px] text-[#737373] mb-1">
-              Drop .lua files here or{" "}
+              Drop .lua or .luau files here or{" "}
               <span className="text-[#a3a3a3] underline underline-offset-2">browse</span>
             </p>
             <p className="text-[11px] text-[#3a3a3a]">
@@ -626,7 +626,7 @@ export default function EncryptPage() {
           <input
             ref={inputRef}
             type="file"
-            accept=".lua"
+            accept=".lua,.luau"
             multiple
             className="hidden"
             onChange={(e) => {
@@ -637,7 +637,7 @@ export default function EncryptPage() {
           <input
             ref={folderRef}
             type="file"
-            accept=".lua"
+            accept=".lua,.luau"
             multiple
             {...({ webkitdirectory: "", directory: "" } as Record<string, string>)}
             className="hidden"

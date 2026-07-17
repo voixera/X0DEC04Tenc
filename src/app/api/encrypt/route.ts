@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 200);
     originalSize = file.size;
 
-    if (!file.name.toLowerCase().endsWith(".lua")) {
+    if (!file.name.toLowerCase().endsWith(".lua") && !file.name.toLowerCase().endsWith(".luau")) {
       const historySaved = await saveHistoryEntry({
         userId,
         fileName: safeName,
@@ -81,11 +81,11 @@ export async function POST(request: NextRequest) {
         encryptedSize: 0,
         encryptionTimeMs: performance.now() - startTime,
         success: false,
-        errorMessage: "Only .lua files are supported",
+        errorMessage: "Only .lua and .luau files are supported",
         settings,
       });
       return NextResponse.json(
-        { error: "Only .lua files are supported", historySaved },
+        { error: "Only .lua and .luau files are supported", historySaved },
         { status: 400 }
       );
     }
