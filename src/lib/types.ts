@@ -52,6 +52,7 @@ export interface LogEntry {
 
 export interface HistoryItem {
   id: string;
+  userId: string;
   fileName: string;
   originalSize: number;
   encryptedSize: number;

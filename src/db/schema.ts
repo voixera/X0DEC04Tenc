@@ -10,6 +10,7 @@ import {
 
 export const encryptionHistory = pgTable("encryption_history", {
   id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id").notNull().default("anonymous"),
   fileName: text("file_name").notNull(),
   originalSize: integer("original_size").notNull(),
   encryptedSize: integer("encrypted_size").notNull(),

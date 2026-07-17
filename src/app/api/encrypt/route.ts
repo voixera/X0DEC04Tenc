@@ -1,110 +1,170 @@
 import { NextRequest, NextResponse } from "next/server";
 import { encryptLuaCode } from "@/lib/encrypt-engine";
 import { db, isDatabaseConfigured } from "@/db";
-import { encryptionHistory, encryptionStats } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
-import type { EncryptionSettings } from "@/lib/types";
+import { encryptionHistory } from "@/db/schema";
+import { DEFAULT_SETTINGS, type EncryptionSettings } from "@/lib/types";
+import { normalizeUserId } from "@/lib/user";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export async function POST(request: NextRequest) {
-  try {
-    if (!isDatabaseConfigured || !db) {
-      return NextResponse.json(
-        { error: "Database not configured", success: false },
-        { status: 503 }
-      );
-    }
+async function saveHistoryEntry({
+  userId,
+  fileName,
+  originalSize,
+  encryptedSize,
+  encryptionTimeMs,
+  success,
+  errorMessage = null,
+  settings,
+}: {
+  userId: string;
+  fileName: string;
+  originalSize: number;
+  encryptedSize: number;
+  encryptionTimeMs: number;
+  success: boolean;
+  errorMessage?: string | null;
+  settings: EncryptionSettings;
+}) {
+  if (!isDatabaseConfigured || !db) {
+    return false;
+  }
 
+  try {
+    await db.insert(encryptionHistory).values({
+      userId,
+      fileName,
+      originalSize,
+      encryptedSize,
+      encryptionTimeMs,
+      success,
+      errorMessage,
+      settings: JSON.stringify(settings),
+    });
+
+    return true;
+  } catch (error) {
+    console.error("[encrypt] Failed to save history entry", error);
+    return false;
+  }
+}
+
+export async function POST(request: NextRequest) {
+  let userId = "anonymous";
+  let file: File | null = null;
+  let safeName = "unknown.lua";
+  let originalSize = 0;
+  let settings: EncryptionSettings = { ...DEFAULT_SETTINGS };
+  const startTime = performance.now();
+
+  try {
     const formData = await request.formData();
-    const file = formData.get("file") as File | null;
+    userId = normalizeUserId(formData.get("userId"));
+    file = formData.get("file") as File | null;
     const settingsRaw = formData.get("settings") as string | null;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
+    safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 200);
+    originalSize = file.size;
+
     if (!file.name.toLowerCase().endsWith(".lua")) {
+      const historySaved = await saveHistoryEntry({
+        userId,
+        fileName: safeName,
+        originalSize,
+        encryptedSize: 0,
+        encryptionTimeMs: performance.now() - startTime,
+        success: false,
+        errorMessage: "Only .lua files are supported",
+        settings,
+      });
       return NextResponse.json(
-        { error: "Only .lua files are supported" },
+        { error: "Only .lua files are supported", historySaved },
         { status: 400 }
       );
     }
 
     if (file.size > MAX_FILE_SIZE) {
+      const historySaved = await saveHistoryEntry({
+        userId,
+        fileName: safeName,
+        originalSize,
+        encryptedSize: 0,
+        encryptionTimeMs: performance.now() - startTime,
+        success: false,
+        errorMessage: "File size exceeds 10MB limit",
+        settings,
+      });
       return NextResponse.json(
-        { error: "File size exceeds 10MB limit" },
+        { error: "File size exceeds 10MB limit", historySaved },
         { status: 400 }
       );
     }
 
     if (file.size === 0) {
+      const historySaved = await saveHistoryEntry({
+        userId,
+        fileName: safeName,
+        originalSize,
+        encryptedSize: 0,
+        encryptionTimeMs: performance.now() - startTime,
+        success: false,
+        errorMessage: "File is empty",
+        settings,
+      });
       return NextResponse.json(
-        { error: "File is empty" },
+        { error: "File is empty", historySaved },
         { status: 400 }
       );
     }
 
-    let settings: EncryptionSettings;
     try {
-      settings = settingsRaw ? JSON.parse(settingsRaw) : {};
+      const parsedSettings = settingsRaw
+        ? (JSON.parse(settingsRaw) as Partial<EncryptionSettings>)
+        : {};
+      settings = { ...DEFAULT_SETTINGS, ...parsedSettings };
     } catch {
+      const historySaved = await saveHistoryEntry({
+        userId,
+        fileName: safeName,
+        originalSize,
+        encryptedSize: 0,
+        encryptionTimeMs: performance.now() - startTime,
+        success: false,
+        errorMessage: "Invalid settings format",
+        settings,
+      });
       return NextResponse.json(
-        { error: "Invalid settings format" },
+        { error: "Invalid settings format", historySaved },
         { status: 400 }
       );
     }
 
     const code = await file.text();
-    const startTime = performance.now();
+    const encryptionStartTime = performance.now();
 
     const result = encryptLuaCode(code, settings);
-    const encryptionTime = performance.now() - startTime;
+    const encryptionTime = performance.now() - encryptionStartTime;
 
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 200);
-
-    try {
-      await db.insert(encryptionHistory).values({
-        fileName: safeName,
-        originalSize: result.stats.originalSize,
-        encryptedSize: result.stats.encryptedSize,
-        encryptionTimeMs: encryptionTime,
-        success: true,
-        settings: JSON.stringify(settings),
-      });
-    } catch (historyError) {
-      console.error("[encrypt] Failed to save history entry", historyError);
-    }
-
-    try {
-      const existing = await db.select().from(encryptionStats).limit(1);
-      if (existing.length === 0) {
-        await db.insert(encryptionStats).values({
-          totalFiles: 1,
-          totalEncrypted: 1,
-          totalFailed: 0,
-          avgProcessTimeMs: encryptionTime,
-        });
-      } else {
-        await db
-          .update(encryptionStats)
-          .set({
-            totalFiles: sql`${encryptionStats.totalFiles} + 1`,
-            totalEncrypted: sql`${encryptionStats.totalEncrypted} + 1`,
-            avgProcessTimeMs: sql`(${encryptionStats.avgProcessTimeMs} * ${encryptionStats.totalFiles} + ${encryptionTime}) / (${encryptionStats.totalFiles} + 1)`,
-            updatedAt: new Date(),
-          })
-          .where(eq(encryptionStats.id, existing[0].id));
-      }
-    } catch (statsError) {
-      console.error("[encrypt] Failed to update stats", statsError);
-    }
+    const historySaved = await saveHistoryEntry({
+      userId,
+      fileName: safeName,
+      originalSize: result.stats.originalSize,
+      encryptedSize: result.stats.encryptedSize,
+      encryptionTimeMs: encryptionTime,
+      success: true,
+      settings,
+    });
 
     return NextResponse.json({
       success: true,
+      historySaved,
       fileName: safeName,
       encrypted: result.encrypted,
       originalSize: result.stats.originalSize,
@@ -114,8 +174,23 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown encryption error";
+    let historySaved = false;
+
+    if (file) {
+      historySaved = await saveHistoryEntry({
+        userId,
+        fileName: safeName,
+        originalSize,
+        encryptedSize: 0,
+        encryptionTimeMs: performance.now() - startTime,
+        success: false,
+        errorMessage: message,
+        settings,
+      });
+    }
+
     return NextResponse.json(
-      { error: message, success: false },
+      { error: message, success: false, historySaved },
       { status: 500 }
     );
   }

@@ -50,11 +50,11 @@ function PageRenderer() {
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex overflow-x-hidden">
       <Sidebar />
-      <div className="flex-1 lg:ml-[220px] flex flex-col min-h-screen">
+      <div className="min-w-0 flex-1 lg:ml-[220px] flex flex-col min-h-screen">
         <Topbar />
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="min-w-0 flex-1 p-4 lg:p-6">
           <PageRenderer />
         </main>
       </div>

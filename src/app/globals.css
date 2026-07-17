@@ -40,8 +40,17 @@ body {
   font-family: var(--font-sans);
   background: var(--color-bg);
   color: var(--color-accent);
+  min-height: 100vh;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 @keyframes fadeIn {

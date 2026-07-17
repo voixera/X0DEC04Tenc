@@ -26,6 +26,8 @@ import {
   isLuaFile,
   validateFileSize,
 } from "@/lib/utils";
+import { getClientUserId } from "@/lib/user";
+import { addLocalHistory } from "@/lib/local-history";
 import type { FileItem, LogEntry } from "@/lib/types";
 
 function SettingsPanel() {
@@ -45,7 +47,7 @@ function SettingsPanel() {
   ];
 
   return (
-    <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] overflow-hidden">
+    <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg overflow-hidden">
       <div className="px-4 py-3 border-b border-[var(--color-border)]">
         <span className="text-[13px] font-medium text-[#e5e5e5]">
           Encryption Settings
@@ -55,9 +57,9 @@ function SettingsPanel() {
         {toggles.map((t) => (
           <label
             key={t.key}
-            className="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-[#181818] transition-colors duration-120 cursor-pointer group"
+            className="flex items-start justify-between gap-3 px-2 py-2 rounded-lg hover:bg-[#181818] transition-colors duration-120 cursor-pointer group"
           >
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-0">
               <span className="text-[12px] text-[#a3a3a3] group-hover:text-[#e5e5e5] transition-colors duration-120">
                 {t.label}
               </span>
@@ -142,7 +144,7 @@ function LiveLog() {
   };
 
   return (
-    <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] overflow-hidden">
+    <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
         <div className="flex items-center gap-2">
           <Terminal className="w-3.5 h-3.5 text-[#525252]" />
@@ -225,7 +227,7 @@ function OutputPanel({
   if (file.status !== "done") return null;
 
   return (
-    <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] p-3 animate-fade-in">
+    <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg p-3 animate-fade-in">
       <div className="flex items-center gap-2 mb-3">
         <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
         <span className="text-[12px] text-[#e5e5e5] font-mono truncate flex-1">
@@ -258,24 +260,24 @@ function OutputPanel({
           </span>
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={downloadFile}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#e5e5e5] text-[#090909] text-[11px] font-medium hover:bg-[#d4d4d4] transition-colors duration-120"
+          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#e5e5e5] text-[#090909] text-[11px] font-medium hover:bg-[#d4d4d4] transition-colors duration-120"
         >
           <Download className="w-3 h-3" />
           Download
         </button>
         <button
           onClick={() => onPreview(file)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] border border-[var(--color-border)] text-[11px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] border border-[var(--color-border)] text-[11px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
         >
           <Eye className="w-3 h-3" />
           Preview
         </button>
         <button
           onClick={copyToClipboard}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] border border-[var(--color-border)] text-[11px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] border border-[var(--color-border)] text-[11px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
         >
           <Copy className="w-3 h-3" />
           Copy
@@ -300,7 +302,7 @@ function PreviewModal({
       onClick={onClose}
     >
       <div
-        className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] w-full max-w-2xl max-h-[80vh] flex flex-col animate-slide-in-up"
+        className="bg-[#111111] border border-[var(--color-border)] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col animate-slide-in-up"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
@@ -437,6 +439,8 @@ export default function EncryptPage() {
     let completed = 0;
 
     for (const fileItem of pending) {
+      let localHistoryRecorded = false;
+
       try {
         updateFile(fileItem.id, { status: "validating", progress: 10 });
         log("info", "Validating file…", fileItem.name);
@@ -452,6 +456,7 @@ export default function EncryptPage() {
         const formData = new FormData();
         formData.append("file", fileItem.file);
         formData.append("settings", JSON.stringify(settings));
+        formData.append("userId", getClientUserId());
 
         const res = await fetch("/api/encrypt", {
           method: "POST",
@@ -461,11 +466,39 @@ export default function EncryptPage() {
         updateFile(fileItem.id, { progress: 80 });
 
         if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.error || "Encryption failed");
+          const errData = await res.json().catch(() => ({}));
+          const message = errData.error || "Encryption failed";
+
+          if (errData.historySaved === false) {
+            addLocalHistory({
+              fileName: fileItem.name,
+              originalSize: fileItem.size,
+              encryptedSize: 0,
+              encryptionTimeMs: 0,
+              success: false,
+              errorMessage: message,
+              settings: JSON.stringify(settings),
+            });
+          }
+
+          localHistoryRecorded = true;
+          throw new Error(message);
         }
 
         const data = await res.json();
+        if (data.historySaved === false) {
+          addLocalHistory({
+            fileName: data.fileName || fileItem.name,
+            originalSize: data.originalSize || fileItem.size,
+            encryptedSize: data.encryptedSize || 0,
+            encryptionTimeMs: data.encryptionTimeMs || 0,
+            success: true,
+            errorMessage: null,
+            settings: JSON.stringify(settings),
+          });
+          localHistoryRecorded = true;
+          log("warning", "Encrypted, but history was not saved", fileItem.name);
+        }
         log("info", "Optimizing output…", fileItem.name);
         updateFile(fileItem.id, { progress: 95 });
 
@@ -484,6 +517,17 @@ export default function EncryptPage() {
         setProcessedCount(completed);
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Unknown error";
+        if (!localHistoryRecorded) {
+          addLocalHistory({
+            fileName: fileItem.name,
+            originalSize: fileItem.size,
+            encryptedSize: 0,
+            encryptionTimeMs: 0,
+            success: false,
+            errorMessage: msg,
+            settings: JSON.stringify(settings),
+          });
+        }
         updateFile(fileItem.id, {
           status: "error",
           progress: 0,
@@ -528,15 +572,15 @@ export default function EncryptPage() {
 
   return (
     <div className="animate-fade-in">
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-4">
-        <div className="space-y-4">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-4">
+        <div className="space-y-4 min-w-0">
           {/* Drop Zone */}
           <div
             onDrop={onDrop}
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             className={cn(
-              "border-2 border-dashed rounded-[10px] transition-all duration-180 flex flex-col items-center justify-center min-h-[180px] cursor-pointer",
+              "border-2 border-dashed rounded-lg transition-all duration-180 flex flex-col items-center justify-center min-h-[180px] cursor-pointer p-4 text-center",
               dragOver
                 ? "border-[#e5e5e5]/30 bg-[#e5e5e5]/[0.02]"
                 : "border-[var(--color-border)] hover:border-[var(--color-border-hover)] bg-[#111111]"
@@ -556,7 +600,7 @@ export default function EncryptPage() {
             <p className="text-[11px] text-[#3a3a3a]">
               Supports batch upload up to 500+ files · Max 10MB per file
             </p>
-            <div className="flex gap-2 mt-3">
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -610,9 +654,9 @@ export default function EncryptPage() {
 
           {/* File List */}
           {files.length > 0 && (
-            <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
-                <div className="flex items-center gap-3">
+            <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg overflow-hidden">
+              <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-[var(--color-border)]">
+                <div className="flex min-w-0 items-center gap-3">
                   <span className="text-[13px] font-medium text-[#e5e5e5]">
                     Queue
                   </span>
@@ -625,7 +669,7 @@ export default function EncryptPage() {
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {doneCount > 0 && (
                     <button
                       onClick={downloadAll}
@@ -667,7 +711,7 @@ export default function EncryptPage() {
                 {files.map((f, idx) => (
                   <div
                     key={f.id}
-                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#141414] transition-colors duration-120 animate-fade-in"
+                    className="flex min-w-0 flex-wrap sm:flex-nowrap items-center gap-3 px-4 py-2.5 hover:bg-[#141414] transition-colors duration-120 animate-fade-in"
                     style={{ animationDelay: `${Math.min(idx, 10) * 30}ms` }}
                   >
                     <div className="shrink-0">
@@ -681,10 +725,10 @@ export default function EncryptPage() {
                         <File className="w-3.5 h-3.5 text-[#3a3a3a]" />
                       )}
                     </div>
-                    <span className="text-[12px] text-[#a3a3a3] font-mono truncate flex-1">
+                    <span className="text-[12px] text-[#a3a3a3] font-mono truncate flex-1 min-w-[140px]">
                       {f.name}
                     </span>
-                    <span className="text-[11px] text-[#3a3a3a] shrink-0">
+                    <span className="text-[11px] text-[#3a3a3a] shrink-0 font-mono">
                       {formatBytes(f.size)}
                     </span>
                     {f.status === "encrypting" || f.status === "validating" ? (

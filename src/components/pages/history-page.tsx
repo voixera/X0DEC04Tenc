@@ -4,14 +4,19 @@ import { useEffect, useState, useCallback } from "react";
 import {
   Search,
   Trash2,
-  Download,
   AlertCircle,
   FileText,
   ChevronDown,
   CheckCircle2,
   XCircle,
 } from "@/components/icons";
-import { formatBytes, formatMs, formatDate, cn, generateId } from "@/lib/utils";
+import { formatBytes, formatMs, formatDate, generateId } from "@/lib/utils";
+import { getClientUserId } from "@/lib/user";
+import {
+  deleteLocalHistory,
+  mergeHistoryItems,
+  queryLocalHistory,
+} from "@/lib/local-history";
 import { useNotificationStore } from "@/lib/store";
 import type { HistoryItem } from "@/lib/types";
 
@@ -24,13 +29,17 @@ export default function HistoryPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterType>("all");
   const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const { addNotification } = useNotificationStore();
 
   const fetchHistory = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      const userId = getClientUserId();
+      const localHistory = queryLocalHistory({ userId, search, filter, page, limit: 20 });
       const params = new URLSearchParams({
+        userId,
         search,
         filter,
         page: page.toString(),
@@ -39,9 +48,24 @@ export default function HistoryPage() {
       const res = await fetch(`/api/history?${params}`);
       if (!res.ok) throw new Error("Failed to fetch history");
       const data = await res.json();
-      setItems(data.items || []);
+      const merged = mergeHistoryItems(data.items || [], localHistory.items);
+      setItems(merged.slice(0, 20));
+      setHasMore(Boolean(data.hasMore) || localHistory.hasMore || merged.length > 20);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load history");
+      const localHistory = queryLocalHistory({
+        search,
+        filter,
+        page,
+        limit: 20,
+      });
+
+      if (localHistory.items.length > 0) {
+        setItems(localHistory.items);
+        setHasMore(localHistory.hasMore);
+        setError(null);
+      } else {
+        setError(e instanceof Error ? e.message : "Failed to load history");
+      }
     } finally {
       setLoading(false);
     }
@@ -55,12 +79,14 @@ export default function HistoryPage() {
   const deleteItem = useCallback(
     async (id: string) => {
       try {
+        const userId = getClientUserId();
+        const deletedLocal = deleteLocalHistory(id, userId);
         const res = await fetch("/api/history", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id }),
+          body: JSON.stringify({ id, userId }),
         });
-        if (!res.ok) throw new Error("Delete failed");
+        if (!res.ok && !deletedLocal) throw new Error("Delete failed");
         setItems((prev) => prev.filter((i) => i.id !== id));
         addNotification({
           id: generateId(),
@@ -108,7 +134,7 @@ export default function HistoryPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full bg-[#111111] border border-[var(--color-border)] rounded-[10px] pl-9 pr-3 py-2 text-[12px] text-[#e5e5e5] placeholder:text-[#2a2a2a] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120"
+            className="w-full bg-[#111111] border border-[var(--color-border)] rounded-lg pl-9 pr-3 py-2 text-[12px] text-[#e5e5e5] placeholder:text-[#2a2a2a] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120"
           />
         </div>
         <div className="relative">
@@ -118,7 +144,7 @@ export default function HistoryPage() {
               setFilter(e.target.value as FilterType);
               setPage(1);
             }}
-            className="appearance-none bg-[#111111] border border-[var(--color-border)] rounded-[10px] px-3 py-2 pr-8 text-[12px] text-[#a3a3a3] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120 cursor-pointer"
+            className="appearance-none w-full sm:w-auto bg-[#111111] border border-[var(--color-border)] rounded-lg px-3 py-2 pr-8 text-[12px] text-[#a3a3a3] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120 cursor-pointer"
           >
             <option value="all">All</option>
             <option value="success">Success</option>
@@ -128,7 +154,7 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] overflow-hidden">
+      <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg overflow-hidden">
         {loading ? (
           <div className="p-4 space-y-3">
             {[0, 1, 2, 3, 4].map((i) => (
@@ -158,7 +184,7 @@ export default function HistoryPage() {
         ) : (
           <>
             {/* Table Header */}
-            <div className="hidden sm:grid grid-cols-[1fr_80px_80px_80px_80px_60px] gap-3 px-4 py-2 border-b border-[var(--color-border)] text-[10px] text-[#3a3a3a] uppercase tracking-wider font-medium">
+            <div className="hidden md:grid grid-cols-[minmax(0,1fr)_86px_86px_82px_112px_36px] gap-3 px-4 py-2 border-b border-[var(--color-border)] text-[10px] text-[#3a3a3a] uppercase tracking-wider font-medium">
               <span>File</span>
               <span>Original</span>
               <span>Encrypted</span>
@@ -170,7 +196,7 @@ export default function HistoryPage() {
               {items.map((item, idx) => (
                 <div
                   key={item.id}
-                  className="grid grid-cols-1 sm:grid-cols-[1fr_80px_80px_80px_80px_60px] gap-1 sm:gap-3 px-4 py-3 hover:bg-[#141414] transition-colors duration-120 animate-fade-in"
+                  className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_86px_86px_82px_112px_36px] gap-2 md:gap-3 px-4 py-3 hover:bg-[#141414] transition-colors duration-120 animate-fade-in"
                   style={{ animationDelay: `${Math.min(idx, 10) * 30}ms` }}
                 >
                   <div className="flex items-center gap-2 min-w-0">
@@ -183,16 +209,34 @@ export default function HistoryPage() {
                       {item.fileName}
                     </span>
                   </div>
-                  <span className="text-[11px] text-[#525252] font-mono">
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1 pl-5 md:hidden">
+                    <span className="text-[10px] text-[#3a3a3a]">Original</span>
+                    <span className="text-[11px] text-[#525252] font-mono text-right">
+                      {formatBytes(item.originalSize)}
+                    </span>
+                    <span className="text-[10px] text-[#3a3a3a]">Encrypted</span>
+                    <span className="text-[11px] text-[#525252] font-mono text-right">
+                      {formatBytes(item.encryptedSize)}
+                    </span>
+                    <span className="text-[10px] text-[#3a3a3a]">Time</span>
+                    <span className="text-[11px] text-[#525252] font-mono text-right">
+                      {formatMs(item.encryptionTimeMs)}
+                    </span>
+                    <span className="text-[10px] text-[#3a3a3a]">Date</span>
+                    <span className="text-[11px] text-[#525252] text-right">
+                      {formatDate(item.createdAt)}
+                    </span>
+                  </div>
+                  <span className="hidden md:block text-[11px] text-[#525252] font-mono">
                     {formatBytes(item.originalSize)}
                   </span>
-                  <span className="text-[11px] text-[#525252] font-mono">
+                  <span className="hidden md:block text-[11px] text-[#525252] font-mono">
                     {formatBytes(item.encryptedSize)}
                   </span>
-                  <span className="text-[11px] text-[#525252] font-mono">
+                  <span className="hidden md:block text-[11px] text-[#525252] font-mono">
                     {formatMs(item.encryptionTimeMs)}
                   </span>
-                  <span className="text-[11px] text-[#3a3a3a] hidden sm:block">
+                  <span className="hidden md:block text-[11px] text-[#3a3a3a]">
                     {formatDate(item.createdAt)}
                   </span>
                   <div className="flex items-center justify-end gap-1">
@@ -210,7 +254,7 @@ export default function HistoryPage() {
         )}
       </div>
 
-      {items.length >= 20 && (
+      {(page > 1 || hasMore) && (
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -222,7 +266,8 @@ export default function HistoryPage() {
           <span className="text-[11px] text-[#3a3a3a] font-mono">Page {page}</span>
           <button
             onClick={() => setPage((p) => p + 1)}
-            className="px-3 py-1.5 rounded-lg bg-[#111111] border border-[var(--color-border)] text-[11px] text-[#525252] hover:text-[#a3a3a3] transition-all duration-120"
+            disabled={!hasMore}
+            className="px-3 py-1.5 rounded-lg bg-[#111111] border border-[var(--color-border)] text-[11px] text-[#525252] hover:text-[#a3a3a3] disabled:opacity-30 transition-all duration-120"
           >
             Next
           </button>
