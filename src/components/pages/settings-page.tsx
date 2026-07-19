@@ -75,13 +75,6 @@ const settingsMeta: {
     type: "toggle",
   },
   {
-    key: "layeredEncryption",
-    label: "Layered Encryption",
-    description:
-      "Wraps the entire output in a compact loader for an obfuscated, Luraph-style feel.",
-    type: "toggle",
-  },
-  {
     key: "randomIdentifierLength",
     label: "Random Identifier Length",
     description:
@@ -112,7 +105,6 @@ export default function SettingsPage() {
       compressOutput: false,
       protectGlobal: false,
       minify: false,
-      layeredEncryption: false,
     });
     addNotification({
       id: generateId(),
@@ -133,7 +125,6 @@ export default function SettingsPage() {
       compressOutput: true,
       protectGlobal: true,
       minify: true,
-      layeredEncryption: true,
       randomIdentifierLength: 16,
     });
     addNotification({

@@ -8,7 +8,6 @@ export interface EncryptionSettings {
   compressOutput: boolean;
   protectGlobal: boolean;
   minify: boolean;
-  layeredEncryption: boolean;
   randomIdentifierLength: number;
   outputFilename: string;
 }
@@ -23,7 +22,6 @@ export const DEFAULT_SETTINGS: EncryptionSettings = {
   compressOutput: false,
   protectGlobal: true,
   minify: false,
-  layeredEncryption: false,
   randomIdentifierLength: 8,
   outputFilename: "",
 };

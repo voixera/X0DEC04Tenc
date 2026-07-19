@@ -140,41 +140,6 @@ function buildDecryptionRuntime(
   return lines.join("\n");
 }
 
-function buildLayeredRuntime(payload: string): string {
-  const encoded = Buffer.from(payload, "utf8").toString("base64");
-  return `-- X0DEC04T Encrypt Protected (Layered)
-local _b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-local function _d(data)
-  data = data:gsub('[^' .. _b .. '=]', '')
-  return (data:gsub('.', function(x)
-    if x == '=' then return '' end
-    local r, f = '', (_b:find(x, 1, true) - 1)
-    for i = 6, 1, -1 do
-      r = r .. (f % 2^i - f % 2^(i - 1) > 0 and '1' or '0')
-    end
-    return r
-  end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
-    if #x ~= 8 then return '' end
-    local c = 0
-    for i = 1, 8 do
-      if x:sub(i, i) == '1' then
-        c = c + 2^(8 - i)
-      end
-    end
-    return string.char(c)
-  end))
-end
-local _src = _d("${encoded}")
-local _load = load or loadstring
-if not _load then
-  error("X0DEC04T Encrypt: this Lua runtime does not provide load or loadstring")
-end
-local _fn, _err = _load(_src)
-if not _fn then error(_err or "X0DEC04T Encrypt: failed to load protected payload") end
-return _fn()
-`;
-}
-
 export function encryptLuaCode(
   code: string,
   settings: EncryptionSettings
@@ -276,10 +241,6 @@ export function encryptLuaCode(
     output = buildDecryptionRuntime(encryptedChunks) + "\n" + processed;
   } else {
     output = "-- X0DEC04T Encrypt Protected\n" + processed;
-  }
-
-  if (settings.layeredEncryption) {
-    output = buildLayeredRuntime(output);
   }
 
   if (settings.compressOutput) {

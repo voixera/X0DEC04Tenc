@@ -37,20 +37,20 @@ export default function Sidebar() {
       )}
       <aside
         className={cn(
-          "fixed top-0 left-0 h-full w-[220px] bg-[#0d0d0d] border-r border-[var(--color-border)] z-50 flex flex-col transition-transform duration-240 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "fixed top-0 left-0 h-full w-[220px] sidebar-glass border-r border-[var(--color-border)] z-50 flex flex-col transition-transform duration-240 ease-[cubic-bezier(0.22,1,0.36,1)]",
           "lg:translate-x-0",
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         <div className="h-14 flex items-center gap-2.5 px-5 border-b border-[var(--color-border)] shrink-0">
-          <div className="w-7 h-7 rounded-lg bg-[#181818] border border-[var(--color-border)] flex items-center justify-center">
-            <Lock className="w-3.5 h-3.5 text-[#e5e5e5]" />
+          <div className="w-7 h-7 rounded-lg brand-mark flex items-center justify-center">
+            <Lock className="w-3.5 h-3.5 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="text-[13px] font-semibold text-[#e5e5e5] tracking-tight leading-tight">
+            <span className="text-[13px] font-semibold text-[var(--color-text)] tracking-tight leading-tight">
               X0DEC04T
             </span>
-            <span className="text-[10px] text-[#525252] font-medium uppercase tracking-wider leading-tight">
+            <span className="text-[10px] text-[var(--color-muted)] font-medium uppercase tracking-wider leading-tight">
               Encrypt
             </span>
           </div>
@@ -75,8 +75,8 @@ export default function Sidebar() {
                 className={cn(
                   "flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-120 w-full text-left",
                   active
-                    ? "bg-[#181818] text-[#e5e5e5] border border-[var(--color-border)]"
-                    : "text-[#737373] hover:text-[#a3a3a3] hover:bg-[#111111] border border-transparent"
+                    ? "nav-active text-[var(--color-text)] border border-[var(--color-border)]"
+                    : "text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-white/5 border border-transparent"
                 )}
               >
                 <item.icon className="w-4 h-4 shrink-0" />
@@ -89,7 +89,7 @@ export default function Sidebar() {
         <div className="px-4 py-3 border-t border-[var(--color-border)]">
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            <span className="text-[11px] text-[#525252]">System Online</span>
+            <span className="text-[11px] text-[var(--color-muted)]">System online</span>
           </div>
         </div>
       </aside>

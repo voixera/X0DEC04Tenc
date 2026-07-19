@@ -43,7 +43,6 @@ function SettingsPanel() {
     { key: "compressOutput", label: "Compress Output", description: "Single-line output" },
     { key: "protectGlobal", label: "Protect Globals", description: "Sandbox global environment" },
     { key: "minify", label: "Minify", description: "Remove whitespace" },
-    { key: "layeredEncryption", label: "Layered Encryption", description: "Compact loader wrapper for a more Luraph-like output" },
   ];
 
   return (

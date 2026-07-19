@@ -4,6 +4,7 @@ import { Suspense, lazy } from "react";
 import Sidebar from "@/components/sidebar";
 import Topbar from "@/components/topbar";
 import NotificationProvider from "@/components/notification-provider";
+import AuthGate from "@/components/auth-gate";
 import { useAppStore } from "@/lib/store";
 
 const DashboardPage = lazy(
@@ -50,7 +51,7 @@ function PageRenderer() {
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex overflow-x-hidden">
+    <AuthGate><div className="min-h-screen flex overflow-x-hidden premium-shell">
       <Sidebar />
       <div className="min-w-0 flex-1 lg:ml-[220px] flex flex-col min-h-screen">
         <Topbar />
@@ -59,6 +60,6 @@ export default function Home() {
         </main>
       </div>
       <NotificationProvider />
-    </div>
+    </div></AuthGate>
   );
 }

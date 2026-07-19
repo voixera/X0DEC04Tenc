@@ -4,6 +4,8 @@ import { db, isDatabaseConfigured } from "@/db";
 import { encryptionHistory } from "@/db/schema";
 import { DEFAULT_SETTINGS, type EncryptionSettings } from "@/lib/types";
 import { normalizeUserId } from "@/lib/user";
+import { DISCORD_SESSION_COOKIE, verifySession } from "@/lib/discord-auth";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -61,8 +63,12 @@ export async function POST(request: NextRequest) {
   const startTime = performance.now();
 
   try {
+    const sessionUser = verifySession((await cookies()).get(DISCORD_SESSION_COOKIE)?.value);
+    if (!sessionUser) {
+      return NextResponse.json({ error: "Sign in with Discord to encrypt files" }, { status: 401 });
+    }
     const formData = await request.formData();
-    userId = normalizeUserId(formData.get("userId"));
+    userId = normalizeUserId(sessionUser.id);
     file = formData.get("file") as File | null;
     const settingsRaw = formData.get("settings") as string | null;
 
