@@ -4,6 +4,7 @@ export const DISCORD_SESSION_COOKIE = "x0d_discord_session";
 export const DISCORD_STATE_COOKIE = "x0d_discord_state";
 
 export type DiscordUser = { id: string; username: string; avatar: string | null };
+export type SessionUser = { id: string; username: string; avatar?: string | null; email?: string };
 
 function secret() {
   const value = process.env.AUTH_SECRET;
@@ -11,21 +12,21 @@ function secret() {
   return value;
 }
 
-export function signSession(user: DiscordUser) {
+export function signSession(user: SessionUser) {
   const payload = Buffer.from(JSON.stringify({ ...user, exp: Date.now() + 7 * 86400_000 })).toString("base64url");
   const signature = crypto.createHmac("sha256", secret()).update(payload).digest("base64url");
   return `${payload}.${signature}`;
 }
 
-export function verifySession(value?: string): DiscordUser | null {
+export function verifySession(value?: string): SessionUser | null {
   if (!value) return null;
   const [payload, signature] = value.split(".");
   if (!payload || !signature) return null;
   const expected = crypto.createHmac("sha256", secret()).update(payload).digest("base64url");
   if (signature.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return null;
   try {
-    const data = JSON.parse(Buffer.from(payload, "base64url").toString()) as DiscordUser & { exp: number };
-    return data.exp > Date.now() ? { id: data.id, username: data.username, avatar: data.avatar } : null;
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString()) as SessionUser & { exp: number };
+    return data.exp > Date.now() ? { id: data.id, username: data.username, avatar: data.avatar, email: data.email } : null;
   } catch { return null; }
 }
 

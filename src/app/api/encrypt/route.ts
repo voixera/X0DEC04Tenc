@@ -6,11 +6,12 @@ import { DEFAULT_SETTINGS, type EncryptionSettings } from "@/lib/types";
 import { normalizeUserId } from "@/lib/user";
 import { DISCORD_SESSION_COOKIE, verifySession } from "@/lib/discord-auth";
 import { cookies } from "next/headers";
+import { EMAIL_SESSION_COOKIE } from "@/lib/email-auth";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 async function saveHistoryEntry({
   userId,
@@ -63,7 +64,8 @@ export async function POST(request: NextRequest) {
   const startTime = performance.now();
 
   try {
-    const sessionUser = verifySession((await cookies()).get(DISCORD_SESSION_COOKIE)?.value);
+    const jar = await cookies();
+    const sessionUser = verifySession(jar.get(DISCORD_SESSION_COOKIE)?.value || jar.get(EMAIL_SESSION_COOKIE)?.value);
     if (!sessionUser) {
       return NextResponse.json({ error: "Sign in with Discord to encrypt files" }, { status: 401 });
     }

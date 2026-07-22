@@ -68,6 +68,8 @@ body[data-theme="aurora"] {
 
 .premium-shell { background-color: var(--color-bg); background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 48px 48px; }
 .premium-login { background: color-mix(in srgb, var(--color-bg-secondary) 90%, transparent); border: 1px solid var(--color-border); box-shadow: 0 28px 80px rgba(0,0,0,.28); }
+.auth-input { width: 100%; border: 1px solid var(--color-border); border-radius: .5rem; background: var(--color-surface); padding: .75rem .875rem; font-size: .875rem; color: var(--color-text); }
+.auth-input::placeholder { color: var(--color-muted); }
 .sidebar-glass { background: color-mix(in srgb, var(--color-bg-secondary) 88%, transparent); backdrop-filter: blur(24px); }
 .topbar-glass { background: color-mix(in srgb, var(--color-bg) 70%, transparent); }
 .brand-mark { background: #064e3b; border: 1px solid rgba(52,211,153,.35); box-shadow: 0 8px 18px rgba(16,185,129,.16); }

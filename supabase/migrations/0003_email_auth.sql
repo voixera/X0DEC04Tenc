@@ -1,0 +1,3 @@
+create table if not exists public.auth_users (id uuid primary key default gen_random_uuid(), email text unique not null, password_hash text not null, display_name text not null, verified_at timestamp, created_at timestamp not null default now());
+create table if not exists public.auth_otps (id uuid primary key default gen_random_uuid(), email text not null, code_hash text not null, purpose text not null, expires_at timestamp not null, attempts integer not null default 0, created_at timestamp not null default now());
+create index if not exists auth_otps_lookup_idx on public.auth_otps(email, purpose, created_at desc);
