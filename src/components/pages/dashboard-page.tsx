@@ -148,12 +148,12 @@ export default function DashboardPage() {
     <div className="space-y-6 animate-fade-in">
       <section className="dashboard-hero relative overflow-hidden rounded-2xl px-5 py-6 sm:px-7 sm:py-8">
         <div className="relative z-10 max-w-xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[.22em] text-violet-300">Protected workspace</p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Ship code with the source left behind.</h2>
-          <p className="mt-2 max-w-lg text-sm leading-6 text-indigo-100/70">A focused control room for preparing Lua builds, reviewing activity, and protecting each release.</p>
-          <button onClick={() => setCurrentPage("encrypt")} className="mt-5 rounded-xl bg-white px-4 py-2.5 text-xs font-semibold text-slate-900 shadow-lg shadow-violet-950/30 transition hover:-translate-y-0.5">Start a protected build</button>
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[.22em] text-emerald-400">Workspace / secure build</p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Ship code with the source left behind.</h2>
+          <p className="mt-2 max-w-lg text-sm leading-6 text-zinc-400">Prepare Lua builds, inspect activity, and protect every release from one focused control room.</p>
+          <button onClick={() => setCurrentPage("encrypt")} className="mt-5 rounded-lg bg-emerald-400 px-4 py-2.5 text-xs font-semibold text-zinc-950 shadow-lg shadow-emerald-950/30 transition hover:-translate-y-0.5 hover:bg-emerald-300 active:translate-y-0">Start a protected build <span className="ml-2 font-mono text-[10px] opacity-60">⌘ E</span></button>
         </div>
-        <div className="hero-orb hero-orb-one" /><div className="hero-orb hero-orb-two" />
+        <div className="absolute right-6 top-6 hidden font-mono text-[10px] text-zinc-600 sm:block">X0D / READY</div>
       </section>
       <div className="grid grid-cols-1 min-[420px]:grid-cols-2 xl:grid-cols-5 gap-3">
         {loading ? (

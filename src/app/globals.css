@@ -1,14 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #090909;
-  --color-bg-secondary: #111111;
-  --color-surface: #181818;
-  --color-border: rgba(255, 255, 255, 0.05);
-  --color-border-hover: rgba(255, 255, 255, 0.1);
-  --color-accent: #e5e5e5;
-  --color-accent-dim: #a3a3a3;
-  --color-muted: #737373;
+  --color-bg: #09090b;
+  --color-bg-secondary: #111114;
+  --color-surface: #18181b;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(52, 211, 153, 0.4);
+  --color-accent: #f5f5f5;
+  --color-accent-dim: #a1a1aa;
+  --color-muted: #71717a;
+  --color-brand: #34d399;
   --color-success: #22c55e;
   --color-error: #ef4444;
   --color-warning: #f59e0b;
@@ -47,9 +48,9 @@ body {
 }
 
 body[data-theme="midnight"], body:not([data-theme]) {
-  --color-bg: #090b16; --color-bg-secondary: #101426; --color-surface: #171c31;
-  --color-border: rgba(151, 162, 255, .15); --color-border-hover: rgba(167, 139, 250, .48);
-  --color-accent: #f4f3ff; --color-accent-dim: #c4c8ee; --color-muted: #8d94bb; --color-text: #f4f3ff;
+  --color-bg: #09090b; --color-bg-secondary: #111114; --color-surface: #18181b;
+  --color-border: rgba(255,255,255,.08); --color-border-hover: rgba(52,211,153,.4);
+  --color-accent: #f5f5f5; --color-accent-dim: #a1a1aa; --color-muted: #71717a; --color-text: #f5f5f5; --color-brand:#34d399;
 }
 
 body[data-theme="pearl"] {
@@ -65,18 +66,20 @@ body[data-theme="aurora"] {
   --color-accent: #ecfdf5; --color-accent-dim: #b6e4d8; --color-muted: #81b6a9; --color-text: #ecfdf5;
 }
 
-.premium-shell { background: radial-gradient(circle at 75% -15%, rgba(124,58,237,.16), transparent 31%), var(--color-bg); }
+.premium-shell { background-color: var(--color-bg); background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 48px 48px; }
 .premium-login { background: color-mix(in srgb, var(--color-bg-secondary) 90%, transparent); border: 1px solid var(--color-border); box-shadow: 0 28px 80px rgba(0,0,0,.28); }
 .sidebar-glass { background: color-mix(in srgb, var(--color-bg-secondary) 88%, transparent); backdrop-filter: blur(24px); }
 .topbar-glass { background: color-mix(in srgb, var(--color-bg) 70%, transparent); }
-.brand-mark { background: linear-gradient(135deg, #8b5cf6, #4f46e5); box-shadow: 0 8px 18px rgba(99,102,241,.35); }
-.nav-active { background: linear-gradient(100deg, rgba(124,58,237,.20), rgba(79,70,229,.09)); box-shadow: inset 0 1px rgba(255,255,255,.08); }
-.dashboard-hero { background: linear-gradient(115deg, #191247, #29206b 52%, #12475a); box-shadow: 0 18px 50px rgba(23,16,72,.28); }
+.brand-mark { background: #064e3b; border: 1px solid rgba(52,211,153,.35); box-shadow: 0 8px 18px rgba(16,185,129,.16); }
+.nav-active { background: rgba(52,211,153,.1); box-shadow: inset 2px 0 var(--color-brand), inset 0 1px rgba(255,255,255,.05); }
+.dashboard-hero { background: #111114; border: 1px solid var(--color-border); box-shadow: 0 18px 50px rgba(0,0,0,.22); }
 .hero-orb { position:absolute; border-radius:999px; filter: blur(2px); opacity:.8; }
 .hero-orb-one { width:220px; height:220px; right:6%; top:-92px; background:radial-gradient(circle, rgba(196,181,253,.75), rgba(139,92,246,.04) 67%); }
 .hero-orb-two { width:150px; height:150px; right:22%; bottom:-102px; background:radial-gradient(circle, rgba(94,234,212,.6), transparent 67%); }
-body[data-theme="pearl"] .dashboard-hero { background: linear-gradient(115deg, #5144a4, #796ec4 53%, #4e9eae); }
-body[data-theme="aurora"] .dashboard-hero { background: linear-gradient(115deg, #063f42, #075653 50%, #176c77); }
+body[data-theme="pearl"] .dashboard-hero, body[data-theme="aurora"] .dashboard-hero { background: var(--color-bg-secondary); }
+button, a, input, select, textarea { outline-offset: 3px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--color-brand); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 
 button,
 input,

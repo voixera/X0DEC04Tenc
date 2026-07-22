@@ -571,6 +571,14 @@ export default function EncryptPage() {
 
   return (
     <div className="animate-fade-in">
+      <div className="mb-5 flex items-end justify-between gap-4">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[.2em] text-emerald-400">Secure build pipeline</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--color-text)]">Encrypt source</h2>
+          <p className="mt-1 text-xs text-[var(--color-muted)]">Drop a build, tune protection, and export a runtime-safe artifact.</p>
+        </div>
+        <span className="hidden rounded-md border border-emerald-400/20 bg-emerald-400/5 px-2 py-1 font-mono text-[10px] text-emerald-400 sm:block">ENGINE ONLINE</span>
+      </div>
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-4">
         <div className="space-y-4 min-w-0">
           {/* Drop Zone */}
