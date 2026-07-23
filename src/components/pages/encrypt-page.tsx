@@ -46,7 +46,7 @@ function SettingsPanel() {
   ];
 
   return (
-    <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg overflow-hidden">
+    <div className="panel overflow-hidden">
       <div className="px-4 py-3 border-b border-[var(--color-border)]">
         <span className="text-[13px] font-medium text-[#e5e5e5]">
           Encryption Settings
@@ -143,7 +143,7 @@ function LiveLog() {
   };
 
   return (
-    <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg overflow-hidden">
+    <div className="panel overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
         <div className="flex items-center gap-2">
           <Terminal className="w-3.5 h-3.5 text-[#525252]" />
@@ -226,7 +226,7 @@ function OutputPanel({
   if (file.status !== "done") return null;
 
   return (
-    <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg p-3 animate-fade-in">
+    <div className="panel p-3 animate-fade-in">
       <div className="flex items-center gap-2 mb-3">
         <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
         <span className="text-[12px] text-[#e5e5e5] font-mono truncate flex-1">
@@ -262,21 +262,21 @@ function OutputPanel({
       <div className="flex flex-wrap gap-2">
         <button
           onClick={downloadFile}
-          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#e5e5e5] text-[#090909] text-[11px] font-medium hover:bg-[#d4d4d4] transition-colors duration-120"
+          className="primary-action flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] transition-colors duration-120"
         >
           <Download className="w-3 h-3" />
           Download
         </button>
         <button
           onClick={() => onPreview(file)}
-          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] border border-[var(--color-border)] text-[11px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+          className="secondary-action flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
         >
           <Eye className="w-3 h-3" />
           Preview
         </button>
         <button
           onClick={copyToClipboard}
-          className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] border border-[var(--color-border)] text-[11px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+          className="secondary-action flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
         >
           <Copy className="w-3 h-3" />
           Copy
@@ -301,7 +301,7 @@ function PreviewModal({
       onClick={onClose}
     >
       <div
-        className="bg-[#111111] border border-[var(--color-border)] rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col animate-slide-in-up"
+        className="panel w-full max-w-2xl max-h-[80vh] flex flex-col animate-slide-in-up"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
@@ -575,7 +575,7 @@ export default function EncryptPage() {
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[.2em] text-emerald-400">Secure build pipeline</p>
           <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--color-text)]">Encrypt source</h2>
-          <p className="mt-1 text-xs text-[var(--color-muted)]">Drop a build, tune protection, and export a runtime-safe artifact.</p>
+          <p className="mt-1 text-xs text-[var(--color-muted)]">Upload Lua or Luau, apply the active preset, and download the protected output.</p>
         </div>
         <span className="hidden rounded-md border border-emerald-400/20 bg-emerald-400/5 px-2 py-1 font-mono text-[10px] text-emerald-400 sm:block">ENGINE ONLINE</span>
       </div>
@@ -613,7 +613,7 @@ export default function EncryptPage() {
                   e.stopPropagation();
                   inputRef.current?.click();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] border border-[var(--color-border)] text-[11px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+                className="secondary-action flex items-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
               >
                 <File className="w-3 h-3" />
                 Files
@@ -623,7 +623,7 @@ export default function EncryptPage() {
                   e.stopPropagation();
                   folderRef.current?.click();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] border border-[var(--color-border)] text-[11px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+                className="secondary-action flex items-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
               >
                 <FolderOpen className="w-3 h-3" />
                 Folder
@@ -661,7 +661,7 @@ export default function EncryptPage() {
 
           {/* File List */}
           {files.length > 0 && (
-            <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg overflow-hidden">
+            <div className="panel overflow-hidden">
               <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-[var(--color-border)]">
                 <div className="flex min-w-0 items-center gap-3">
                   <span className="text-[13px] font-medium text-[#e5e5e5]">
@@ -680,7 +680,7 @@ export default function EncryptPage() {
                   {doneCount > 0 && (
                     <button
                       onClick={downloadAll}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#e5e5e5] text-[#090909] text-[11px] font-medium hover:bg-[#d4d4d4] transition-colors duration-120"
+                      className="primary-action flex items-center gap-1.5 px-2.5 py-1 text-[11px] transition-colors duration-120"
                     >
                       <Download className="w-3 h-3" />
                       All
@@ -689,7 +689,7 @@ export default function EncryptPage() {
                   {!isProcessing && pendingCount > 0 && (
                     <button
                       onClick={processQueue}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#e5e5e5] text-[#090909] text-[11px] font-medium hover:bg-[#d4d4d4] transition-colors duration-120"
+                      className="primary-action flex items-center gap-1.5 px-2.5 py-1 text-[11px] transition-colors duration-120"
                     >
                       Encrypt {pendingCount}
                     </button>

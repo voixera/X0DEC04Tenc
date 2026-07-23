@@ -9,6 +9,9 @@ import {
   AlertCircle,
   AlertTriangle,
   ChevronRight,
+  Cpu,
+  Database,
+  KeyRound,
 } from "@/components/icons";
 import { formatMs, formatDate, cn } from "@/lib/utils";
 import { getClientUserId } from "@/lib/user";
@@ -46,7 +49,7 @@ function StatCard({
 
   return (
     <div
-      className="min-h-[112px] bg-[#111111] border border-[var(--color-border)] rounded-lg p-4 animate-fade-in overflow-hidden"
+      className="metric-card min-h-[112px] p-4 animate-fade-in overflow-hidden"
       style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="flex items-center justify-between mb-3">
@@ -146,14 +149,28 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <section className="dashboard-hero relative overflow-hidden rounded-2xl px-5 py-6 sm:px-7 sm:py-8">
-        <div className="relative z-10 max-w-xl">
-          <p className="font-mono text-[10px] font-semibold uppercase tracking-[.22em] text-emerald-400">Workspace / secure build</p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Ship code with the source left behind.</h2>
-          <p className="mt-2 max-w-lg text-sm leading-6 text-zinc-400">Prepare Lua builds, inspect activity, and protect every release from one focused control room.</p>
-          <button onClick={() => setCurrentPage("encrypt")} className="mt-5 rounded-lg bg-emerald-400 px-4 py-2.5 text-xs font-semibold text-zinc-950 shadow-lg shadow-emerald-950/30 transition hover:-translate-y-0.5 hover:bg-emerald-300 active:translate-y-0">Start a protected build <span className="ml-2 font-mono text-[10px] opacity-60">⌘ E</span></button>
+      <section className="console-hero relative overflow-hidden rounded-2xl px-5 py-6 sm:px-7 sm:py-8">
+        <div className="console-grid absolute inset-y-0 right-0 hidden w-1/2 sm:block" />
+        <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
+          <div className="max-w-xl">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[.22em] text-emerald-400">Lua / Luau obfuscation console</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--color-text)] sm:text-3xl">Build protected scripts and audit every run.</h2>
+            <p className="mt-2 max-w-lg text-sm leading-6 text-[var(--color-accent-dim)]">Queue source files, apply your preset, then review per-account history from the same workspace.</p>
+            <button onClick={() => setCurrentPage("encrypt")} className="primary-action mt-5 px-4 py-2.5 text-xs transition active:translate-y-0">Open encrypt queue</button>
+          </div>
+          <div className="hidden rounded-xl border border-emerald-400/15 bg-black/25 p-4 font-mono text-[11px] text-emerald-100/80 shadow-inner lg:block">
+            <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[.18em] text-emerald-400">
+              <span>pipeline.lua</span>
+              <span>ready</span>
+            </div>
+            <div className="space-y-2">
+              <p><span className="text-zinc-500">01</span> scan identifiers</p>
+              <p><span className="text-zinc-500">02</span> encrypt strings</p>
+              <p><span className="text-zinc-500">03</span> encode constants</p>
+              <p><span className="text-zinc-500">04</span> write history row</p>
+            </div>
+          </div>
         </div>
-        <div className="absolute right-6 top-6 hidden font-mono text-[10px] text-zinc-600 sm:block">X0D / READY</div>
       </section>
       <div className="grid grid-cols-1 min-[420px]:grid-cols-2 xl:grid-cols-5 gap-3">
         {loading ? (
@@ -169,14 +186,14 @@ export default function DashboardPage() {
             <StatCard
               label="Total Files"
               value={stats.totalFiles.toLocaleString()}
-              icon={FileText}
+              icon={Database}
               index={0}
               tone="neutral"
             />
             <StatCard
               label="Encrypted"
               value={stats.totalEncrypted.toLocaleString()}
-              icon={Shield}
+              icon={KeyRound}
               index={1}
               tone="success"
             />
@@ -190,7 +207,7 @@ export default function DashboardPage() {
             <StatCard
               label="Avg Time"
               value={formatMs(stats.avgProcessTimeMs)}
-              icon={Clock}
+              icon={Cpu}
               index={3}
               tone="info"
             />
@@ -205,7 +222,7 @@ export default function DashboardPage() {
         ) : null}
       </div>
 
-      <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg overflow-hidden">
+      <div className="panel overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
           <span className="text-[13px] font-medium text-[#e5e5e5]">
             Recent Activity
@@ -269,28 +286,28 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg p-4">
+      <div className="panel p-4">
         <h3 className="text-[13px] font-medium text-[#e5e5e5] mb-3">
           Quick Actions
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <button
             onClick={() => setCurrentPage("encrypt")}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-[#181818] border border-[var(--color-border)] hover:border-[var(--color-border-hover)] text-[12px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+            className="secondary-action flex items-center gap-2.5 px-3 py-2.5 text-[12px] transition-all duration-120"
           >
             <Shield className="w-3.5 h-3.5" />
             Encrypt Files
           </button>
           <button
             onClick={() => setCurrentPage("history")}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-[#181818] border border-[var(--color-border)] hover:border-[var(--color-border-hover)] text-[12px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+            className="secondary-action flex items-center gap-2.5 px-3 py-2.5 text-[12px] transition-all duration-120"
           >
             <Clock className="w-3.5 h-3.5" />
             View History
           </button>
           <button
             onClick={() => setCurrentPage("documentation")}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-[#181818] border border-[var(--color-border)] hover:border-[var(--color-border-hover)] text-[12px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+            className="secondary-action flex items-center gap-2.5 px-3 py-2.5 text-[12px] transition-all duration-120"
           >
             <FileText className="w-3.5 h-3.5" />
             Read Docs

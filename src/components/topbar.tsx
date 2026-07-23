@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAppStore, useEncryptStore } from "@/lib/store";
-import { Menu, Loader2 } from "@/components/icons";
+import { LogOut, Menu, Loader2 } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const pageLabels: Record<string, string> = {
@@ -47,7 +47,16 @@ export default function Topbar() {
         <select aria-label="Theme" value={theme} onChange={(e) => changeTheme(e.target.value)} className="hidden sm:block rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-[11px] text-[var(--color-text)] outline-none">
           <option value="midnight">Midnight</option><option value="pearl">Pearl</option><option value="aurora">Aurora</option>
         </select>
-        {user && <button onClick={logout} title="Sign out" className="hidden sm:block text-[11px] text-[var(--color-muted)] hover:text-[var(--color-text)]">{user.username}</button>}
+        {user && (
+          <button
+            onClick={logout}
+            title="Sign out"
+            className="secondary-action hidden items-center gap-1.5 px-2 py-1 text-[11px] sm:flex"
+          >
+            <span className="max-w-24 truncate">{user.username}</span>
+            <LogOut className="h-3 w-3" />
+          </button>
+        )}
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-[#525252] font-mono">v1.0.0</span>
           <div

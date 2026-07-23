@@ -146,38 +146,41 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-2xl space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between">
+    <div className="max-w-3xl space-y-4 animate-fade-in">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-[14px] font-semibold text-[#e5e5e5]">
-            Encryption Configuration
+          <p className="font-mono text-[10px] uppercase tracking-[.2em] text-emerald-400">Preset control</p>
+          <h2 className="mt-1 text-lg font-semibold text-[var(--color-text)]">
+            Encryption configuration
           </h2>
-          <p className="text-[12px] text-[#525252] mt-0.5">
-            Configure how your Lua files are processed and encrypted.
+          <p className="text-[12px] text-[var(--color-muted)] mt-0.5">
+            Choose how Lua and Luau files are transformed before export.
           </p>
         </div>
+        <div className="flex flex-wrap gap-2">
         <button
           onClick={applyVerySafePreset}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#e5e5e5] text-[#090909] text-[11px] font-medium hover:bg-[#d4d4d4] transition-all duration-120"
+          className="primary-action flex items-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
         >
           Very Safe Mode
         </button>
         <button
           onClick={applyLuraphStylePreset}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#181818] border border-[var(--color-border)] text-[11px] text-[#a3a3a3] hover:text-[#e5e5e5] transition-all duration-120"
+          className="secondary-action flex items-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
         >
           Luraph Style
         </button>
         <button
           onClick={handleReset}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111111] border border-[var(--color-border)] text-[11px] text-[#525252] hover:text-[#a3a3a3] transition-all duration-120"
+          className="secondary-action flex items-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
         >
           <RotateCcw className="w-3 h-3" />
           Reset
         </button>
+        </div>
       </div>
 
-      <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] overflow-hidden divide-y divide-[var(--color-border)]">
+      <div className="panel overflow-hidden divide-y divide-[var(--color-border)]">
         {settingsMeta.map((meta, idx) => (
           <div
             key={meta.key}

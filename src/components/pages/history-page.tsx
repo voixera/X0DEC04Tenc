@@ -154,7 +154,7 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      <div className="bg-[#111111] border border-[var(--color-border)] rounded-lg overflow-hidden">
+      <div className="panel overflow-hidden">
         {loading ? (
           <div className="p-4 space-y-3">
             {[0, 1, 2, 3, 4].map((i) => (

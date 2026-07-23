@@ -32,6 +32,11 @@ import {
   ChevronDown,
   Copy,
   Lock,
+  Activity,
+  Cpu,
+  Database,
+  KeyRound,
+  LogOut,
 } from "lucide-react";
 
 export {
@@ -66,4 +71,9 @@ export {
   ChevronDown,
   Copy,
   Lock,
+  Activity,
+  Cpu,
+  Database,
+  KeyRound,
+  LogOut,
 };
