@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAppStore, useEncryptStore } from "@/lib/store";
-import { LogOut, Menu, Loader2 } from "@/components/icons";
+import { LogOut, Menu, Loader2, Moon, Sun, Sparkles } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const pageLabels: Record<string, string> = {
@@ -21,6 +21,7 @@ export default function Topbar() {
   const [user, setUser] = useState<{ username: string } | null>(null);
   useEffect(() => { document.body.dataset.theme = theme; fetch("/api/auth/discord/me").then((r) => r.json()).then((d) => setUser(d.user)).catch(() => {}); }, [theme]);
   const changeTheme = (value: string) => { setTheme(value); localStorage.setItem("x0d-theme", value); document.body.dataset.theme = value; };
+  const themeMeta = theme === "pearl" ? { label: "Pearl", Icon: Sun, next: "aurora" } : theme === "aurora" ? { label: "Aurora", Icon: Sparkles, next: "midnight" } : { label: "Midnight", Icon: Moon, next: "pearl" };
   const logout = async () => { await fetch("/api/auth/logout", { method: "POST" }); location.reload(); };
 
   return (
@@ -44,9 +45,7 @@ export default function Topbar() {
             <span className="hidden sm:inline">Processing</span>
           </div>
         )}
-        <select aria-label="Theme" value={theme} onChange={(e) => changeTheme(e.target.value)} className="hidden sm:block rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-[11px] text-[var(--color-text)] outline-none">
-          <option value="midnight">Midnight</option><option value="pearl">Pearl</option><option value="aurora">Aurora</option>
-        </select>
+        <button aria-label={`Switch theme from ${themeMeta.label}`} title={`Switch theme · ${themeMeta.label}`} onClick={() => changeTheme(themeMeta.next)} className="theme-switch"><themeMeta.Icon className="h-3.5 w-3.5" /><span className="hidden md:inline">{themeMeta.label}</span><span className="theme-switch__dot" /></button>
         {user && (
           <button
             onClick={logout}
