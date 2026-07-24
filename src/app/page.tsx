@@ -19,6 +19,7 @@ const HistoryPage = lazy(
 const SettingsPage = lazy(
   () => import("@/components/pages/settings-page")
 );
+const AccountPage = lazy(() => import("@/components/pages/account-page"));
 const DocumentationPage = lazy(
   () => import("@/components/pages/documentation-page")
 );
@@ -43,6 +44,7 @@ function PageRenderer() {
       {currentPage === "encrypt" && <EncryptPage />}
       {currentPage === "history" && <HistoryPage />}
       {currentPage === "settings" && <SettingsPage />}
+      {currentPage === "account" && <AccountPage />}
       {currentPage === "documentation" && <DocumentationPage />}
       {currentPage === "about" && <AboutPage />}
     </Suspense>

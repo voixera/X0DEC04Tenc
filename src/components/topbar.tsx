@@ -10,6 +10,7 @@ const pageLabels: Record<string, string> = {
   encrypt: "Encrypt",
   history: "History",
   settings: "Settings",
+  account: "Account",
   documentation: "Documentation",
   about: "About",
 };

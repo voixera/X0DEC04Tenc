@@ -84,5 +84,6 @@ export type PageId =
   | "encrypt"
   | "history"
   | "settings"
+  | "account"
   | "documentation"
   | "about";

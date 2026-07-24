@@ -19,6 +19,7 @@ const navItems: { id: PageId; label: string; icon: typeof LayoutDashboard }[] = 
   { id: "encrypt", label: "Encrypt", icon: Shield },
   { id: "history", label: "History", icon: History },
   { id: "settings", label: "Settings", icon: Settings },
+  { id: "account", label: "Account", icon: Settings },
   { id: "documentation", label: "Documentation", icon: BookOpen },
   { id: "about", label: "About", icon: Info },
 ];
