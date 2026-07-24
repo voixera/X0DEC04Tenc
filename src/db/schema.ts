@@ -35,6 +35,7 @@ export const authUsers = pgTable("auth_users", {
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   displayName: text("display_name").notNull(),
+  role: text("role").notNull().default("user"),
   verifiedAt: timestamp("verified_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

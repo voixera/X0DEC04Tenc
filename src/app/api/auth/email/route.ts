@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       if (!input.name?.trim() || !validPassword(input.password || "")) return NextResponse.json({ error: "Use a name and an 8+ character password with letters and numbers" }, { status: 400 });
       if (!emailConfigured) return NextResponse.json({ error: "Email verification is not configured. Add BREVO_API_KEY and BREVO_SENDER_EMAIL first." }, { status: 503 });
       if ((await db.select().from(authUsers).where(eq(authUsers.email, email)).limit(1))[0]) return NextResponse.json({ error: "An account already exists" }, { status: 409 });
-      await db.insert(authUsers).values({ email, displayName: input.name.trim(), passwordHash: passwordHash(input.password!) }); await sendOtp(email, otp(), "verify");
+      await db.insert(authUsers).values({ email, displayName: input.name.trim(), passwordHash: passwordHash(input.password!), role: "user" }); await sendOtp(email, otp(), "verify");
       return NextResponse.json({ ok: true, next: "verify", message: "Check your email for the verification code" });
     }
     if (input.action === "login") {
