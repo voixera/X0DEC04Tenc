@@ -16,7 +16,11 @@ export async function sendOtp(email: string, code: string, purpose: string) {
   if (!emailConfigured) throw new Error("Email verification is not configured");
   await db.insert(authOtps).values({ email, codeHash: digest(code), purpose, expiresAt: new Date(Date.now() + 10 * 60_000) });
   const response = await fetch("https://api.brevo.com/v3/smtp/email", { method: "POST", headers: { "api-key": process.env.BREVO_API_KEY!, "content-type": "application/json" }, body: JSON.stringify({ sender: { email: process.env.BREVO_SENDER_EMAIL!, name: "X0DEC04T Encrypt" }, to: [{ email }], subject: purpose === "reset" ? "Reset your X0DEC04T password" : "Verify your X0DEC04T account", htmlContent: `<div style="font-family:Arial;color:#111"><h2>Your verification code</h2><p style="font-size:28px;letter-spacing:8px"><b>${code}</b></p><p>This code expires in 10 minutes.</p></div>` }) });
-  if (!response.ok) throw new Error("Brevo failed to send the verification email");
+  if (!response.ok) {
+    const details = await response.text();
+    console.error("Brevo rejected email", { status: response.status, details });
+    throw new Error(`Brevo rejected email (${response.status})`);
+  }
 }
 
 export async function latestOtp(email: string, purpose: string) { return db ? (await db.select().from(authOtps).where(and(eq(authOtps.email, email), eq(authOtps.purpose, purpose))).orderBy(desc(authOtps.createdAt)).limit(1))[0] : null; }

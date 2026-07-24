@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     console.error("Email authentication failed", error);
     const details = error instanceof Error ? error.message : "";
     if (details === "Email verification is not configured") return NextResponse.json({ error: "Email verification is not configured in the deployed environment." }, { status: 503 });
-    if (details === "Brevo failed to send the verification email") return NextResponse.json({ error: "Brevo rejected the sender or email request. Verify BREVO_SENDER_EMAIL in Brevo." }, { status: 502 });
+    if (details.startsWith("Brevo rejected email")) return NextResponse.json({ error: "Brevo menolak permintaan email. Buka Vercel Logs untuk melihat status dan alasan dari Brevo." }, { status: 502 });
     if (details === "Database is not configured") return NextResponse.json({ error: "DATABASE_URL is not configured in the deployed environment." }, { status: 503 });
     return NextResponse.json({ error: "Authentication service is temporarily unavailable" }, { status: 500 });
   }
