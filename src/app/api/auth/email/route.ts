@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { authUsers, db, digest, latestOtp, normalizeEmail, otp, passwordHash, sendOtp, validPassword } from "@/lib/email-auth";
+import { authUsers, db, digest, emailConfigured, latestOtp, normalizeEmail, otp, passwordHash, sendOtp, validPassword } from "@/lib/email-auth";
 import { eq } from "drizzle-orm";
 import { EMAIL_SESSION_COOKIE } from "@/lib/email-auth";
 import { signSession } from "@/lib/discord-auth";
@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     if (!email.includes("@")) return NextResponse.json({ error: "Enter a valid email address" }, { status: 400 });
     if (input.action === "signup") {
       if (!input.name?.trim() || !validPassword(input.password || "")) return NextResponse.json({ error: "Use a name and an 8+ character password with letters and numbers" }, { status: 400 });
+      if (!emailConfigured) return NextResponse.json({ error: "Email verification is not configured. Add BREVO_API_KEY and BREVO_SENDER_EMAIL first." }, { status: 503 });
       if ((await db.select().from(authUsers).where(eq(authUsers.email, email)).limit(1))[0]) return NextResponse.json({ error: "An account already exists" }, { status: 409 });
       await db.insert(authUsers).values({ email, displayName: input.name.trim(), passwordHash: passwordHash(input.password!) }); await sendOtp(email, otp(), "verify");
       return NextResponse.json({ ok: true, next: "verify", message: "Check your email for the verification code" });
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
     // Keep SQL, connection details, and submitted credentials out of the API response.
     // The full error remains available in the server logs for troubleshooting.
     console.error("Email authentication failed", error);
-    return NextResponse.json({ error: "Authentication service is temporarily unavailable" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error && error.message === "Email verification is not configured" ? "Email verification is not configured. Add BREVO_API_KEY and BREVO_SENDER_EMAIL first." : "Authentication service is temporarily unavailable" }, { status: 500 });
   }
 }
 
