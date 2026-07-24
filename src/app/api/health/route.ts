@@ -12,7 +12,9 @@ export async function GET() {
   try {
     await db.execute(sql`select 1`);
     return Response.json({ ok: true, database: true });
-  } catch {
-    return Response.json({ ok: false, database: true }, { status: 500 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Database query failed";
+    console.error("Health database check failed", error);
+    return Response.json({ ok: false, database: true, error: message }, { status: 500 });
   }
 }
