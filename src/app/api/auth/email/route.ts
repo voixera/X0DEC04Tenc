@@ -31,7 +31,12 @@ export async function POST(request: Request) {
       if (!validPassword(input.password || "")) return NextResponse.json({ error: "Use an 8+ character password with letters and numbers" }, { status: 400 }); await db.update(authUsers).set({ passwordHash: passwordHash(input.password!) }).where(eq(authUsers.email, email)); return NextResponse.json({ ok: true, next: "login" });
     }
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Authentication failed" }, { status: 500 }); }
+  } catch (error) {
+    // Keep SQL, connection details, and submitted credentials out of the API response.
+    // The full error remains available in the server logs for troubleshooting.
+    console.error("Email authentication failed", error);
+    return NextResponse.json({ error: "Authentication service is temporarily unavailable" }, { status: 500 });
+  }
 }
 
 export async function GET() { const jar = await cookies(); return NextResponse.json({ authenticated: Boolean(jar.get(EMAIL_SESSION_COOKIE)?.value) }); }
