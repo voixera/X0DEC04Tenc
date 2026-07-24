@@ -36,7 +36,11 @@ export async function POST(request: Request) {
     // Keep SQL, connection details, and submitted credentials out of the API response.
     // The full error remains available in the server logs for troubleshooting.
     console.error("Email authentication failed", error);
-    return NextResponse.json({ error: error instanceof Error && error.message === "Email verification is not configured" ? "Email verification is not configured. Add BREVO_API_KEY and BREVO_SENDER_EMAIL first." : "Authentication service is temporarily unavailable" }, { status: 500 });
+    const details = error instanceof Error ? error.message : "";
+    if (details === "Email verification is not configured") return NextResponse.json({ error: "Email verification is not configured in the deployed environment." }, { status: 503 });
+    if (details === "Brevo failed to send the verification email") return NextResponse.json({ error: "Brevo rejected the sender or email request. Verify BREVO_SENDER_EMAIL in Brevo." }, { status: 502 });
+    if (details === "Database is not configured") return NextResponse.json({ error: "DATABASE_URL is not configured in the deployed environment." }, { status: 503 });
+    return NextResponse.json({ error: "Authentication service is temporarily unavailable" }, { status: 500 });
   }
 }
 
