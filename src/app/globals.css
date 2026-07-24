@@ -74,7 +74,7 @@ body[data-theme="aurora"] {
 .password-toggle:hover { color: var(--color-text); background: color-mix(in srgb, var(--color-brand) 12%, transparent); }
 .discord-action { border: 1px solid rgba(88,101,242,.45); border-radius: .65rem; background: rgba(88,101,242,.12); color: #c7ceff; transition: transform 140ms ease, background-color 140ms ease, border-color 140ms ease; }
 .discord-action:hover { border-color: rgba(88,101,242,.8); background: rgba(88,101,242,.22); transform: translateY(-1px); }
-.discord-mark { display: grid; width: 1.15rem; height: 1.15rem; place-items: center; border-radius: .35rem; background: #5865f2; color: white; font-size: .75rem; }
+.discord-mark { display: block; width: 1.15rem; height: 1.15rem; border-radius: .35rem; background: url('/discord.svg') center / contain no-repeat; font-size: 0; }
 .auth-divider { display: flex; align-items: center; gap: .75rem; margin: 1rem 0; color: var(--color-muted); font-size: .65rem; text-transform: uppercase; letter-spacing: .12em; }
 .auth-divider::before, .auth-divider::after { content: ""; height: 1px; flex: 1; background: var(--color-border); }
 .auth-input::placeholder { color: var(--color-muted); }
