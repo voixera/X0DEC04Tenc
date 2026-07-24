@@ -72,6 +72,11 @@ body[data-theme="aurora"] {
 .auth-input:focus { border-color: var(--color-brand); box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-brand) 13%, transparent); outline: none; }
 .password-toggle { position: absolute; right: .35rem; top: 50%; display: grid; width: 2.25rem; height: 2.25rem; place-items: center; transform: translateY(-50%); border-radius: .5rem; color: var(--color-muted); transition: color 160ms ease, background-color 160ms ease; }
 .password-toggle:hover { color: var(--color-text); background: color-mix(in srgb, var(--color-brand) 12%, transparent); }
+.discord-action { border: 1px solid rgba(88,101,242,.45); border-radius: .65rem; background: rgba(88,101,242,.12); color: #c7ceff; transition: transform 140ms ease, background-color 140ms ease, border-color 140ms ease; }
+.discord-action:hover { border-color: rgba(88,101,242,.8); background: rgba(88,101,242,.22); transform: translateY(-1px); }
+.discord-mark { display: grid; width: 1.15rem; height: 1.15rem; place-items: center; border-radius: .35rem; background: #5865f2; color: white; font-size: .75rem; }
+.auth-divider { display: flex; align-items: center; gap: .75rem; margin: 1rem 0; color: var(--color-muted); font-size: .65rem; text-transform: uppercase; letter-spacing: .12em; }
+.auth-divider::before, .auth-divider::after { content: ""; height: 1px; flex: 1; background: var(--color-border); }
 .auth-input::placeholder { color: var(--color-muted); }
 .sidebar-glass { background: color-mix(in srgb, var(--color-bg-secondary) 88%, transparent); backdrop-filter: blur(24px); }
 .topbar-glass { background: color-mix(in srgb, var(--color-bg) 70%, transparent); }
