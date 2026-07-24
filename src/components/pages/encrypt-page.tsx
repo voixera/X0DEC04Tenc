@@ -203,6 +203,7 @@ function OutputPanel({
   file: FileItem;
   onPreview: (f: FileItem) => void;
 }) {
+  const [copied, setCopied] = useState(false);
   const downloadFile = useCallback(() => {
     if (!file.encryptedContent) return;
     const blob = new Blob([file.encryptedContent], { type: "text/plain" });
@@ -218,6 +219,8 @@ function OutputPanel({
     if (!file.encryptedContent) return;
     try {
       await navigator.clipboard.writeText(file.encryptedContent);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
     } catch {
       // Fallback: do nothing
     }
@@ -269,7 +272,7 @@ function OutputPanel({
         </button>
         <button
           onClick={() => onPreview(file)}
-          className="secondary-action flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
+          className={cn("secondary-action flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120", copied && "action-success")}
         >
           <Eye className="w-3 h-3" />
           Preview
@@ -278,8 +281,8 @@ function OutputPanel({
           onClick={copyToClipboard}
           className="secondary-action flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
         >
-          <Copy className="w-3 h-3" />
-          Copy
+          {copied ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+          {copied ? "Copied" : "Copy"}
         </button>
       </div>
     </div>

@@ -110,6 +110,10 @@ select,
 textarea {
   font: inherit;
 }
+button { transition: transform 140ms cubic-bezier(.22,1,.36,1), filter 140ms ease, border-color 140ms ease, background-color 140ms ease, color 140ms ease; }
+button:active:not(:disabled) { transform: translateY(1px) scale(.975); filter: brightness(.94); }
+button:disabled { cursor: not-allowed; opacity: .55; }
+.action-success { border-color: rgba(52,211,153,.5); color: var(--color-brand); background: color-mix(in srgb, var(--color-brand) 12%, transparent); }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }

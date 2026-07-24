@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useEncryptStore, useNotificationStore } from "@/lib/store";
 import { RotateCcw } from "@/components/icons";
 import { cn, generateId } from "@/lib/utils";
@@ -93,6 +94,8 @@ const settingsMeta: {
 export default function SettingsPage() {
   const { settings, updateSettings, resetSettings } = useEncryptStore();
   const { addNotification } = useNotificationStore();
+  const [activePreset, setActivePreset] = useState<string | null>(null);
+  const flashPreset = (name: string) => { setActivePreset(name); window.setTimeout(() => setActivePreset(null), 1600); };
 
   const applyVerySafePreset = () => {
     updateSettings({
@@ -112,6 +115,7 @@ export default function SettingsPage() {
       title: "Very Safe Mode",
       message: "Applied a conservative preset focused on runtime stability",
     });
+    flashPreset("safe");
   };
 
   const applyLuraphStylePreset = () => {
@@ -133,6 +137,7 @@ export default function SettingsPage() {
       title: "Luraph Style",
       message: "Applied a compact layered obfuscation preset",
     });
+    flashPreset("luraph");
   };
 
   const handleReset = () => {
@@ -143,6 +148,7 @@ export default function SettingsPage() {
       title: "Settings Reset",
       message: "All encryption settings restored to defaults",
     });
+    flashPreset("reset");
   };
 
   return (
@@ -162,13 +168,13 @@ export default function SettingsPage() {
           onClick={applyVerySafePreset}
           className="primary-action flex items-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
         >
-          Very Safe Mode
+          {activePreset === "safe" ? "Applied" : "Very Safe Mode"}
         </button>
         <button
           onClick={applyLuraphStylePreset}
           className="secondary-action flex items-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
         >
-          Luraph Style
+          {activePreset === "luraph" ? "Applied" : "Luraph Style"}
         </button>
         <button
           onClick={handleReset}
