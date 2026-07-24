@@ -41,6 +41,10 @@ import {
   Database,
   KeyRound,
   LogOut,
+  Monitor,
+  UserRound,
+  Mail,
+  ShieldCheck,
 } from "lucide-react";
 
 export {
@@ -84,4 +88,8 @@ export {
   Database,
   KeyRound,
   LogOut,
+  Monitor,
+  UserRound,
+  Mail,
+  ShieldCheck,
 };
