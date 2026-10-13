@@ -15,47 +15,45 @@ const sections: Section[] = [
     id: "upload",
     title: "Uploading Files",
     content: [
-      "Navigate to the Encrypt page from the sidebar. You will see a large drop zone in the center of the page.",
-      "Drag and drop your .lua files directly onto the drop zone. Alternatively, click the \"Files\" button to open a file picker, or click \"Folder\" to select an entire directory.",
-      "Only files with the .lua extension are accepted. Each file must be under 10MB in size. Empty files are automatically rejected.",
+      "Navigate to the Obfuscate page from the sidebar. You will see a large drop zone in the center of the page.",
+      "Drag and drop your .lua or .luau files directly onto the drop zone. Alternatively, click the \"Files\" button to open a file picker, or click \"Folder\" to select an entire directory.",
+      "Only files with the .lua or .luau extension are accepted. Each file must be under 10MB in size. Empty files are automatically rejected.",
       "You can add up to 500+ files in a single batch. Files are queued and processed sequentially to maintain system stability.",
-      "After files are added, they appear in the queue list below the drop zone with their names and sizes. You can remove individual files before starting encryption.",
+      "After files are added, they appear in the queue list below the drop zone with their names and sizes. You can remove individual files before starting obfuscation.",
     ],
   },
   {
     id: "encrypt",
-    title: "Encrypting Files",
+    title: "Obfuscating Files",
     content: [
-      "Before starting encryption, configure your settings in the panel on the right side. Each setting controls a specific aspect of the encryption process.",
-      "Click the \"Encrypt\" button in the queue header to begin processing. Files are encrypted one by one in the order they were added.",
-      "The Live Log at the bottom of the page shows real-time progress for each file: validation, scanning, encrypting, optimizing, and completion.",
-      "Each file goes through five stages: validation (checking format and size), analysis (parsing the Lua source), encryption (applying all selected transformations), optimization (finalizing the output), and completion.",
-      "If a file fails during encryption, it will be marked with an error indicator and the error message will appear in the log. Other files in the queue continue processing normally.",
+      "Before starting, configure your settings in the panel on the right side. Each setting controls a specific transformation.",
+      "Click the \"Obfuscate\" button in the queue header to begin processing. Files are processed one by one in the order they were added.",
+      "The Live Log at the bottom of the page shows real-time progress for each file: validation, scanning, obfuscating, optimizing, and completion.",
+      "If a file fails, it is marked with an error indicator and a clear diagnostic appears in the log. The original source is never replaced by partial output.",
     ],
   },
   {
     id: "download",
     title: "Downloading Results",
     content: [
-      "After encryption completes, each file shows an output card with four metrics: original size, encrypted size, size change, and processing time.",
-      "Click the \"Download\" button on any output card to save the encrypted file. The filename will have \"_encrypted\" appended before the extension.",
-      "Use the \"Copy\" button to copy the encrypted output directly to your clipboard for quick pasting.",
-      "Click \"Preview\" to open a modal showing the full encrypted output. This is useful for quick inspection without downloading.",
-      "If you encrypted multiple files, use the \"All\" button in the queue header to download every completed file at once.",
+      "After processing completes, each file shows an output card with four metrics: original size, protected size, size change, and processing time.",
+      "Click the \"Download\" button on any output card to save the protected file. The filename will have \"_protected\" appended before the extension.",
+      "Use the \"Copy\" button to copy the protected output directly to your clipboard for quick pasting.",
+      "Click \"Preview\" to open a modal showing the full protected output. This is useful for quick inspection without downloading.",
+      "If you processed multiple files, use the \"All\" button in the queue header to download every completed file at once.",
     ],
   },
   {
     id: "settings",
-    title: "Encryption Settings",
+    title: "Obfuscation Settings",
     content: [
-      "Rename Variables / Functions / Locals: Replaces identifiers with random strings. This is the primary obfuscation method. Lua keywords and built-in functions are preserved automatically.",
-      "Encrypt Strings: Each string literal is encrypted using AES-128-GCM with a unique key per string. A lightweight decryption runtime is injected into the output.",
-      "Encode Constants: Numeric literals are replaced with equivalent expressions (e.g., 42 becomes (87-45)) to prevent simple pattern matching.",
-      "Remove Comments: Strips all single-line (--) and multi-line (--[[ ]]) comments. This reduces file size and removes developer notes from the output.",
-      "Compress Output: Joins all lines into a single semicolon-separated line. Produces the most compact output but reduces readability for debugging.",
-      "Protect Globals: Wraps the code in a sandboxed environment using setmetatable. Prevents unintended global variable leaks.",
+      "Rename Variables / Functions / Locals: Replaces identifiers with random strings. This is the primary obfuscation method. Renaming is scope-aware: Lua keywords, Roblox globals (game, workspace, Instance, Enum, ...) and standard-library names are preserved automatically.",
+      "Encrypt Strings: Each non-empty string literal is replaced with an equivalent expression that reconstructs the original bytes at runtime using only string.char/string.byte/table.concat. This is reversible obfuscation, not encryption — it hides the text from casual reading.",
+      "Encode Constants: Numeric integer literals are replaced with equivalent expressions (e.g., 42 becomes (87-45)) to prevent simple pattern matching.",
+      "Remove Comments: Strips single-line (--) and long (--[[ ]]) comments. This reduces file size and removes developer notes from the output.",
+      "Compress Output: Removes insignificant whitespace to produce a more compact single-block output. It never merges the branding header into the code body.",
+      "Protect Globals: NOT SUPPORTED. The previous metatable sandbox produced invalid or broken Lua and has been disabled; enabling this toggle is a no-op.",
       "Minify: Removes unnecessary whitespace and empty lines before applying other transformations.",
-      "Layered Encryption: Encodes the entire output in Base64 and wraps it in a loader function. Adds an extra layer of protection at the cost of slightly larger output.",
       "Random Identifier Length: Controls how long generated identifiers are (4–32 characters). Longer identifiers are harder to guess but increase file size.",
     ],
   },
@@ -63,13 +61,12 @@ const sections: Section[] = [
     id: "security",
     title: "Security Tips",
     content: [
-      "Always enable Rename Variables, Rename Functions, and Encrypt Strings together for maximum protection. These three settings form the core obfuscation layer.",
-      "Enable Layered Encryption for distribution builds. The additional Base64 encoding prevents casual inspection of the encrypted code structure.",
-      "Use Protect Globals to prevent your code from accidentally modifying the global environment. This is especially important for scripts running in shared environments.",
+      "Always enable Rename Variables, Rename Functions, and Encrypt Strings together for best results. These three settings form the core obfuscation layer.",
+      "Use Protect Globals only for documentation purposes — it is not supported and does nothing.",
       "Increase the Random Identifier Length to 16 or higher for production deployments. Shorter identifiers are easier to brute-force map back to original names.",
-      "Never rely on obfuscation alone for security. X0DEC04T Encrypt makes reverse engineering significantly harder, but no obfuscation is theoretically unbreakable.",
-      "Keep your original source files in a secure location. The encryption process is one-way — there is no built-in decryption tool.",
-      "All file processing happens server-side. Your files are not stored permanently — they are processed in memory and the encrypted output is returned immediately.",
+      "Never rely on obfuscation alone for security. Choco OBF makes reverse engineering harder, but no obfuscation is unbreakable, and none of these techniques are encryption.",
+      "Keep your original source files in a secure location. Obfuscation is lossy to read but the behaviour is preserved — there is no built-in de-obfuscation tool.",
+      "All file processing happens server-side. Your files are not stored permanently — they are processed in memory and the obfuscated output is returned immediately.",
     ],
   },
 ];
@@ -77,7 +74,7 @@ const sections: Section[] = [
 const faqItems: { q: string; a: string }[] = [
   {
     q: "What file formats are supported?",
-    a: "X0DEC04T Encrypt exclusively supports .lua files. Other scripting languages are not currently supported. Ensure your files have the correct .lua extension before uploading.",
+    a: "Choco OBF supports .lua and .luau files. Ensure your files have the correct extension before uploading.",
   },
   {
     q: "Is there a file size limit?",
@@ -92,20 +89,20 @@ const faqItems: { q: string; a: string }[] = [
     a: "File contents are processed in memory and never written to disk. Only metadata (filename, size, processing time) is stored in the history database for your reference.",
   },
   {
-    q: "Can the encryption be reversed?",
-    a: "The encryption process is designed to be one-way. While the code remains functionally equivalent, recovering the original source from the encrypted output requires significant effort.",
+    q: "Can the obfuscation be reversed?",
+    a: "Obfuscation is designed to make the source hard to read, not to encrypt it. The original names and structure are lost, but the runtime behaviour is preserved. There is no built-in de-obfuscation tool, though a determined reader can still reverse-engineer the output.",
   },
   {
-    q: "Why does my encrypted file become larger?",
-    a: "Some settings, particularly Encrypt Strings and Layered Encryption, add decryption runtime code and encoded data that increase the overall file size. This is expected behavior and represents the security overhead.",
+    q: "Why does my protected file become larger?",
+    a: "String encoding and identifier renaming add runtime code and generated data that increase the overall file size. This is expected and represents the obfuscation overhead.",
   },
   {
-    q: "What Lua version is supported?",
-    a: "The encryption engine supports Lua 5.1 through 5.4 syntax, as well as LuaJIT extensions. Standard Lua constructs are handled correctly.",
+    q: "What Lua dialect is supported?",
+    a: "Choco OBF targets Roblox Luau. It handles the Luau common subset, including long strings, numeric escapes and standard constructs. Luau-only syntax is preserved but must be validated in Roblox Studio.",
   },
   {
-    q: "Do encrypted files run slower?",
-    a: "There is minimal runtime overhead. String decryption adds a small initial cost when strings are first accessed, but this is typically negligible for most applications.",
+    q: "Do protected files run slower?",
+    a: "There is minimal runtime overhead. Inline string decoding adds a small one-time cost when a string is first evaluated, but this is typically negligible for most applications.",
   },
 ];
 
@@ -141,7 +138,7 @@ export default function DocumentationPage() {
       <div>
         <h2 className="text-[14px] font-semibold text-[#e5e5e5]">Documentation</h2>
         <p className="text-[12px] text-[#525252] mt-0.5">
-          Complete guide for using X0DEC04T Encrypt effectively.
+          Complete guide for using Choco OBF effectively.
         </p>
       </div>
 

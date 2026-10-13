@@ -191,7 +191,7 @@ export default function DashboardPage() {
               tone="neutral"
             />
             <StatCard
-              label="Encrypted"
+              label="Obfuscated"
               value={stats.totalEncrypted.toLocaleString()}
               icon={KeyRound}
               index={1}
@@ -249,12 +249,12 @@ export default function DashboardPage() {
         ) : history.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2">
             <FileText className="w-6 h-6 text-[#2a2a2a]" />
-            <p className="text-[12px] text-[#525252]">No encryption activity yet</p>
+            <p className="text-[12px] text-[#525252]">No obfuscation activity yet</p>
             <button
               onClick={() => setCurrentPage("encrypt")}
               className="text-[12px] text-[#737373] hover:text-[#e5e5e5] transition-colors duration-120 mt-1 underline underline-offset-2"
             >
-              Encrypt your first file
+              Obfuscate your first file
             </button>
           </div>
         ) : (
@@ -296,7 +296,7 @@ export default function DashboardPage() {
             className="secondary-action flex items-center gap-2.5 px-3 py-2.5 text-[12px] transition-all duration-120"
           >
             <Shield className="w-3.5 h-3.5" />
-            Encrypt Files
+            Obfuscate Files
           </button>
           <button
             onClick={() => setCurrentPage("history")}

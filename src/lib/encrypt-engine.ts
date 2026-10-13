@@ -1,260 +1,170 @@
+/**
+ * Choco OBF — obfuscation engine.
+ *
+ * Pipeline (each stage separated so failures are attributable):
+ *   1. Input validation        -> validateInput (lex + structure)
+ *   2. Comment removal         -> removeComments
+ *   3. Scope-aware renaming    -> renameIdentifiers
+ *   4. String encoding         -> encodeStrings
+ *   5. Constant encoding       -> encodeConstants
+ *   6. Emit                    -> emitOutput
+ *   7. Output validation       -> validateOutput (final safety gate)
+ *
+ * On any failure the caller receives `ok: false`, diagnostics, and the
+ * ORIGINAL source unchanged — never partial or corrupt output.
+ */
+
 import type { EncryptionSettings } from "./types";
-import crypto from "crypto";
+import { ObfuscationError } from "./obf/errors";
+import { validateInput, validateOutput } from "./obf/validator";
+import {
+  encodeConstants,
+  encodeStrings,
+  minify,
+  removeComments,
+  renameIdentifiers,
+  stripWhitespace,
+  type PassContext,
+} from "./obf/passes";
+import { emitOutput } from "./obf/emit";
+import { LUAU_KEYWORDS, PROTECTED_GLOBALS } from "./obf/tokenizer";
 
-function randomIdentifier(length: number): string {
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
-  const start = chars[Math.floor(Math.random() * chars.length)];
-  const allChars = chars + "0123456789";
-  let result = start;
-  for (let i = 1; i < length; i++) {
-    result += allChars[Math.floor(Math.random() * allChars.length)];
-  }
-  return result;
+export interface ObfuscationDiagnostic {
+  phase: string;
+  message: string;
+  line?: number;
+  column?: number;
 }
 
-function encryptString(str: string): string {
-  const key = crypto.randomBytes(16);
-  const iv = crypto.randomBytes(12);
-  const cipher = crypto.createCipheriv("aes-128-gcm", key, iv);
-  let encrypted = cipher.update(str, "utf8", "hex");
-  encrypted += cipher.final("hex");
-  const tag = cipher.getAuthTag().toString("hex");
-  return `${iv.toString("hex")}:${encrypted}:${tag}:${key.toString("hex")}`;
+export interface ObfuscationResult {
+  ok: boolean;
+  /** Protected output when `ok` is true; otherwise the ORIGINAL source. */
+  output: string;
+  diagnostics: ObfuscationDiagnostic[];
+  originalSize: number;
+  outputSize: number;
 }
 
-function removeComments(code: string): string {
-  let result = "";
-  let i = 0;
-  let inString: string | null = null;
-  let inLongString = false;
-  let longStringLevel = 0;
+/* ------------------------------------------------------------------------- *
+ * Deterministic RNG (mulberry32) so identical inputs + settings are stable.
+ * ------------------------------------------------------------------------- */
 
-  while (i < code.length) {
-    if (inLongString) {
-      const closePattern = "]" + "=".repeat(longStringLevel) + "]";
-      const closeIdx = code.indexOf(closePattern, i);
-      if (closeIdx === -1) {
-        result += code.slice(i);
-        break;
-      }
-      result += code.slice(i, closeIdx + closePattern.length);
-      i = closeIdx + closePattern.length;
-      inLongString = false;
-      continue;
-    }
-
-    if (inString) {
-      if (code[i] === "\\" && i + 1 < code.length) {
-        result += code[i] + code[i + 1];
-        i += 2;
-        continue;
-      }
-      if (code[i] === inString) {
-        result += code[i];
-        i++;
-        inString = null;
-        continue;
-      }
-      result += code[i];
-      i++;
-      continue;
-    }
-
-    if (code[i] === '"' || code[i] === "'") {
-      inString = code[i];
-      result += code[i];
-      i++;
-      continue;
-    }
-
-    if (code[i] === "[") {
-      let level = 0;
-      let j = i + 1;
-      while (j < code.length && code[j] === "=") {
-        level++;
-        j++;
-      }
-      if (j < code.length && code[j] === "[") {
-        inLongString = true;
-        longStringLevel = level;
-        const header = code.slice(i, j + 1);
-        result += header;
-        i = j + 1;
-        continue;
-      }
-    }
-
-    if (code[i] === "-" && i + 1 < code.length && code[i + 1] === "-") {
-      if (i + 2 < code.length && code[i + 2] === "[") {
-        let level = 0;
-        let j = i + 3;
-        while (j < code.length && code[j] === "=") {
-          level++;
-          j++;
-        }
-        if (j < code.length && code[j] === "[") {
-          const closePattern = "]" + "=".repeat(level) + "]";
-          const closeIdx = code.indexOf(closePattern, j + 1);
-          if (closeIdx !== -1) {
-            i = closeIdx + closePattern.length;
-          } else {
-            i = code.length;
-          }
-          continue;
-        }
-      }
-      const nl = code.indexOf("\n", i);
-      if (nl === -1) {
-        break;
-      }
-      i = nl;
-      continue;
-    }
-
-    result += code[i];
-    i++;
-  }
-
-  return result;
-}
-
-function minifyCode(code: string): string {
-  return code
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0)
-    .join("\n");
-}
-
-function buildDecryptionRuntime(
-  encryptedChunks: { varName: string; data: string }[]
-): string {
-  const lines: string[] = [];
-  lines.push("-- X0DEC04T Encrypt Protected");
-  lines.push(
-    "local function _x0d(h)local k,i,e,t=h:match('(.+):(.+):(.+):(.+)');local c={}for m in k:gmatch('..')do c[#c+1]=tonumber(m,16)end;local d={}for m in t:gmatch('..')do d[#d+1]=tonumber(m,16)end;local r={}for m in i:gmatch('..')do r[#r+1]=tonumber(m,16)end;local o=''for j=1,#r do o=o..string.char(((r[j]-d[(j-1)%#d+1]-c[(j-1)%#c+1])%256))end;return o end"
-  );
-  for (const chunk of encryptedChunks) {
-    lines.push(`local ${chunk.varName}=_x0d("${chunk.data}")`);
-  }
-  return lines.join("\n");
-}
-
-export function encryptLuaCode(
-  code: string,
-  settings: EncryptionSettings
-): { encrypted: string; stats: { originalSize: number; encryptedSize: number } } {
-  const startTime = performance.now();
-  let processed = code;
-  const originalSize = Buffer.byteLength(code, "utf8");
-
-  if (settings.removeComments) {
-    processed = removeComments(processed);
-  }
-
-  if (settings.minify) {
-    processed = minifyCode(processed);
-  }
-
-  const idLen = settings.randomIdentifierLength || 8;
-  const luaKeywords = new Set([
-    "and","break","do","else","elseif","end","false","for","function",
-    "goto","if","in","local","nil","not","or","repeat","return","then",
-    "true","until","while","print","require","tostring","tonumber",
-    "type","pairs","ipairs","next","select","unpack","table","string",
-    "math","io","os","error","pcall","xpcall","assert","setmetatable",
-    "getmetatable","rawget","rawset","rawequal","rawlen","load",
-    "loadstring","dofile","loadfile","coroutine","debug","_G","_VERSION",
-    "collectgarbage","arg","self",
-  ]);
-
-  const identifierMap = new Map<string, string>();
-
-  function getOrCreateId(name: string): string {
-    if (luaKeywords.has(name)) return name;
-    if (identifierMap.has(name)) return identifierMap.get(name)!;
-    const newId = "_" + randomIdentifier(idLen);
-    identifierMap.set(name, newId);
-    return newId;
-  }
-
-  if (settings.renameVariable || settings.renameFunction || settings.renameLocal) {
-    const identRegex = /\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g;
-    let inStr: string | null = null;
-    let result = "";
-    let lastIndex = 0;
-
-    for (let i = 0; i < processed.length; i++) {
-      if (inStr) {
-        if (processed[i] === "\\" && i + 1 < processed.length) {
-          i++;
-          continue;
-        }
-        if (processed[i] === inStr) {
-          inStr = null;
-        }
-        continue;
-      }
-      if (processed[i] === '"' || processed[i] === "'") {
-        inStr = processed[i];
-      }
-    }
-
-    processed = processed.replace(identRegex, (match) => {
-      if (luaKeywords.has(match)) return match;
-      return getOrCreateId(match);
-    });
-  }
-
-  const encryptedChunks: { varName: string; data: string }[] = [];
-
-  if (settings.encryptString) {
-    const stringRegex = /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g;
-    let chunkIndex = 0;
-    processed = processed.replace(stringRegex, (match) => {
-      const inner = match.slice(1, -1);
-      if (inner.length === 0) return match;
-      const varName = "_s" + randomIdentifier(idLen) + chunkIndex;
-      const data = encryptString(inner);
-      encryptedChunks.push({ varName, data });
-      chunkIndex++;
-      return varName;
-    });
-  }
-
-  if (settings.encodeConstant) {
-    processed = processed.replace(/\b(\d+)\b/g, (match) => {
-      const n = parseInt(match, 10);
-      if (isNaN(n) || n > 1000000) return match;
-      const offset = Math.floor(Math.random() * 100) + 1;
-      return `(${n + offset}-${offset})`;
-    });
-  }
-
-  if (settings.protectGlobal) {
-    const protectHeader = `local _ENV=setmetatable({},{__index=_G,__newindex=function(t,k,v)rawset(t,k,v)end})\n`;
-    processed = protectHeader + processed;
-  }
-
-  let output = "";
-  if (encryptedChunks.length > 0) {
-    output = buildDecryptionRuntime(encryptedChunks) + "\n" + processed;
-  } else {
-    output = "-- X0DEC04T Encrypt Protected\n" + processed;
-  }
-
-  if (settings.compressOutput) {
-    output = output
-      .split("\n")
-      .map((l) => l.trim())
-      .filter((l) => l.length > 0)
-      .join(";");
-  }
-
-  const encryptedSize = Buffer.byteLength(output, "utf8");
-
-  return {
-    encrypted: output,
-    stats: { originalSize, encryptedSize },
+function makeRng(seed: number): () => number {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+function seedFromInput(code: string, settings: EncryptionSettings): number {
+  let h = 2166136261;
+  const s = code + JSON.stringify(settings);
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/**
+ * Run the obfuscation pipeline.
+ *
+ * @param code      Original Luau source.
+ * @param settings  User-selected transformations.
+ * @param options   `validateOutput` (default true) toggles the final safety gate.
+ */
+export function obfuscateLuaCode(
+  code: string,
+  settings: EncryptionSettings,
+  options: { validateOutput?: boolean } = {}
+): ObfuscationResult {
+  const validate = options.validateOutput ?? true;
+  const originalSize = Buffer.byteLength(code, "utf8");
+  const fail = (err: unknown, phaseFallback: string): ObfuscationResult => {
+    const diag: ObfuscationDiagnostic =
+      err instanceof ObfuscationError
+        ? {
+            phase: err.phase,
+            message: err.message,
+            line: err.line,
+            column: err.column,
+          }
+        : {
+            phase: phaseFallback,
+            message: err instanceof Error ? err.message : "Unknown error",
+          };
+    return {
+      ok: false,
+      output: code, // never return partial/corrupt output
+      diagnostics: [diag],
+      originalSize,
+      outputSize: originalSize,
+    };
+  };
+
+  const ctx: PassContext = {
+    rng: makeRng(seedFromInput(code, settings)),
+    idLength: Math.max(4, Math.min(32, settings.randomIdentifierLength || 8)),
+    reserved: new Set<string>([...LUAU_KEYWORDS, ...PROTECTED_GLOBALS]),
+  };
+
+  let tokens;
+  try {
+    tokens = validateInput(code);
+  } catch (err) {
+    return fail(err, "validate-input");
+  }
+
+  try {
+    // Normalise: drop insignificant whitespace so every pass sees adjacent
+    // meaningful tokens. The emitter reconstructs spacing deterministically.
+    tokens = stripWhitespace(tokens);
+
+    if (settings.removeComments) {
+      tokens = removeComments(tokens);
+    }
+
+    if (settings.renameVariable || settings.renameFunction || settings.renameLocal) {
+      tokens = renameIdentifiers(tokens, settings, ctx);
+    }
+
+    if (settings.encryptString) {
+      tokens = encodeStrings(tokens);
+    }
+
+    if (settings.encodeConstant) {
+      tokens = encodeConstants(tokens, ctx);
+    }
+
+    if (settings.minify) {
+      tokens = minify(tokens);
+    }
+
+    const output = emitOutput(tokens, {
+      branded: true,
+      compress: settings.compressOutput,
+    });
+
+    if (validate) {
+      try {
+        validateOutput(output);
+      } catch (err) {
+        return fail(err, "validate-output");
+      }
+    }
+
+    return {
+      ok: true,
+      output,
+      diagnostics: [],
+      originalSize,
+      outputSize: Buffer.byteLength(output, "utf8"),
+    };
+  } catch (err) {
+    return fail(err, "internal");
+  }
 }

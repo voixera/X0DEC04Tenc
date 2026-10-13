@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { encryptLuaCode } from "@/lib/encrypt-engine";
+import { obfuscateLuaCode } from "@/lib/encrypt-engine";
 import { db, isDatabaseConfigured } from "@/db";
 import { encryptionHistory } from "@/db/schema";
 import { DEFAULT_SETTINGS, type EncryptionSettings } from "@/lib/types";
@@ -157,14 +157,43 @@ export async function POST(request: NextRequest) {
     const code = await file.text();
     const encryptionStartTime = performance.now();
 
-    const result = encryptLuaCode(code, settings);
+    const result = obfuscateLuaCode(code, settings, {
+      validateOutput: settings.validateOutput !== false,
+    });
     const encryptionTime = performance.now() - encryptionStartTime;
+
+    if (!result.ok) {
+      const diag = result.diagnostics[0];
+      const message = diag
+        ? `${diag.message}${diag.line ? ` (line ${diag.line}${diag.column ? `, column ${diag.column}` : ""})` : ""}`
+        : "Obfuscation failed";
+      const historySaved = await saveHistoryEntry({
+        userId,
+        fileName: safeName,
+        originalSize: result.originalSize,
+        encryptedSize: 0,
+        encryptionTimeMs: encryptionTime,
+        success: false,
+        errorMessage: message,
+        settings,
+      });
+      return NextResponse.json(
+        {
+          error: message,
+          success: false,
+          phase: diag?.phase ?? "internal",
+          diagnostics: result.diagnostics,
+          historySaved,
+        },
+        { status: 400 }
+      );
+    }
 
     const historySaved = await saveHistoryEntry({
       userId,
       fileName: safeName,
-      originalSize: result.stats.originalSize,
-      encryptedSize: result.stats.encryptedSize,
+      originalSize: result.originalSize,
+      encryptedSize: result.outputSize,
       encryptionTimeMs: encryptionTime,
       success: true,
       settings,
@@ -174,9 +203,9 @@ export async function POST(request: NextRequest) {
       success: true,
       historySaved,
       fileName: safeName,
-      encrypted: result.encrypted,
-      originalSize: result.stats.originalSize,
-      encryptedSize: result.stats.encryptedSize,
+      encrypted: result.output,
+      originalSize: result.originalSize,
+      encryptedSize: result.outputSize,
       encryptionTimeMs: encryptionTime,
     });
   } catch (error) {

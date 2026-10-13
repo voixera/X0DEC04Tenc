@@ -10,6 +10,11 @@ export interface EncryptionSettings {
   minify: boolean;
   randomIdentifierLength: number;
   outputFilename: string;
+  /**
+   * Validate generated output before reporting success. Defaults to true in
+   * DEFAULT_SETTINGS. When enabled the engine refuses to return corrupt output.
+   */
+  validateOutput: boolean;
 }
 
 export const DEFAULT_SETTINGS: EncryptionSettings = {
@@ -24,6 +29,7 @@ export const DEFAULT_SETTINGS: EncryptionSettings = {
   minify: false,
   randomIdentifierLength: 8,
   outputFilename: "",
+  validateOutput: true,
 };
 
 export interface FileItem {

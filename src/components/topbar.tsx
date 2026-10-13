@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const pageLabels: Record<string, string> = {
   dashboard: "Dashboard",
-  encrypt: "Encrypt",
+  encrypt: "Obfuscate",
   history: "History",
   settings: "Settings",
   account: "Account",

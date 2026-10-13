@@ -35,9 +35,9 @@ const settingsMeta: {
   },
   {
     key: "encryptString",
-    label: "Encrypt Strings",
+    label: "Encode Strings",
     description:
-      "Encrypts all string literals using authenticated per-string protection.",
+      "Replaces string literals with an equivalent, reversible runtime expression.",
     type: "toggle",
   },
   {
@@ -58,21 +58,21 @@ const settingsMeta: {
     key: "compressOutput",
     label: "Compress Output",
     description:
-      "Joins all lines into a single semicolon-separated line for maximum compactness.",
+      "Removes insignificant whitespace to produce a more compact output block.",
     type: "toggle",
   },
   {
     key: "protectGlobal",
-    label: "Protect Globals",
+    label: "Protect Globals (unsupported)",
     description:
-      "Sandboxes the global environment using a protected metatable proxy.",
+      "No-op. The previous metatable sandbox produced invalid Lua and is disabled.",
     type: "toggle",
   },
   {
     key: "minify",
     label: "Minify",
     description:
-      "Removes unnecessary whitespace and empty lines before encryption.",
+      "Removes unnecessary whitespace and empty lines before obfuscation.",
     type: "toggle",
   },
   {
@@ -146,7 +146,7 @@ export default function SettingsPage() {
       id: generateId(),
       type: "info",
       title: "Settings Reset",
-      message: "All encryption settings restored to defaults",
+      message: "All obfuscation settings restored to defaults",
     });
     flashPreset("reset");
   };
@@ -157,7 +157,7 @@ export default function SettingsPage() {
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[.2em] text-emerald-400">Preset control</p>
           <h2 className="mt-1 text-lg font-semibold text-[var(--color-text)]">
-            Encryption configuration
+            Obfuscation configuration
           </h2>
           <p className="text-[12px] text-[var(--color-muted)] mt-0.5">
             Choose how Lua and Luau files are transformed before export.

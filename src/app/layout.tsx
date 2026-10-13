@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "X0DEC04T Encrypt — Lua Source Code Encryption",
+  title: "Choco OBF — Lua/Luau Source Obfuscator",
   description:
-    "Professional-grade Lua source code encryption platform. Protect your intellectual property with multi-layer obfuscation and AES-128-GCM encryption.",
+    "Choco OBF is a Luau source code obfuscation platform for Roblox developers. It makes script source harder to read while preserving runtime behaviour.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

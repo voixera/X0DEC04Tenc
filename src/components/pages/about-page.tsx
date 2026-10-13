@@ -12,15 +12,15 @@ export default function AboutPage() {
           </div>
           <div>
             <h2 className="text-[16px] font-semibold text-[#e5e5e5] tracking-tight">
-              X0DEC04T Encrypt
+              Choco OBF
             </h2>
-            <span className="text-[11px] text-[#525252] font-mono">v1.0.0</span>
+            <span className="text-[11px] text-[#525252] font-mono">v2.0.0</span>
           </div>
         </div>
         <p className="text-[13px] text-[#737373] leading-relaxed mt-4">
-          X0DEC04T Encrypt is a professional-grade Lua source code encryption platform
-          designed for developers who need to protect their intellectual property.
-          Built with a focus on performance, security, and developer experience.
+          Choco OBF is a Luau source code obfuscation platform for Roblox
+          developers. It transforms readable scripts into harder-to-read
+          equivalents while preserving the original runtime behaviour.
         </p>
       </div>
 
@@ -28,11 +28,12 @@ export default function AboutPage() {
         <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] p-4 animate-fade-in" style={{ animationDelay: "60ms" }}>
           <Shield className="w-5 h-5 text-[#525252] mb-3" />
           <h3 className="text-[13px] font-medium text-[#e5e5e5] mb-1">
-            Multi-Layer Security
+            Multi-Layer Obfuscation
           </h3>
           <p className="text-[11px] text-[#525252] leading-relaxed">
-            AES-128-GCM string encryption, identifier obfuscation, constant encoding,
-            and optional layered Base64 wrapping provide defense in depth.
+            Scope-aware identifier renaming, reversible string encoding,
+            constant encoding, and comment stripping are combined for defense
+            in depth. This is obfuscation, not encryption.
           </p>
         </div>
 
@@ -67,14 +68,14 @@ export default function AboutPage() {
         </div>
         <div className="divide-y divide-[var(--color-border)]">
           {[
-            { label: "Encryption Algorithm", value: "AES-128-GCM" },
-            { label: "String Encryption", value: "Per-string unique IV + key" },
-            { label: "Identifier Obfuscation", value: "Configurable length random alphanumeric" },
+            { label: "Target Language", value: "Roblox Luau" },
+            { label: "String Protection", value: "Reversible per-string byte encoding" },
+            { label: "Identifier Obfuscation", value: "Scope-aware, configurable length" },
             { label: "Constant Encoding", value: "Arithmetic expression substitution" },
-            { label: "Comment Removal", value: "Single-line, multi-line, and long comments" },
-            { label: "Global Protection", value: "Metatable-based environment sandbox" },
-            { label: "Layered Encryption", value: "Base64-encoded loader wrapping" },
-            { label: "Supported Syntax", value: "Lua 5.1 – 5.4, LuaJIT" },
+            { label: "Comment Removal", value: "Single-line and long comments" },
+            { label: "Global Protection", value: "Not supported (documented)" },
+            { label: "Output Validation", value: "Re-lexed before success is reported" },
+            { label: "Supported Syntax", value: "Luau common subset" },
             { label: "Max File Size", value: "10 MB per file" },
             { label: "Batch Processing", value: "500+ files per session" },
           ].map((row, idx) => (
@@ -94,19 +95,19 @@ export default function AboutPage() {
           Architecture
         </h3>
         <p className="text-[12px] text-[#525252] leading-relaxed">
-          X0DEC04T Encrypt is built on Next.js with server-side encryption processing.
-          The frontend uses React with Zustand for state management, providing a
-          responsive single-page application experience. The encryption engine runs
-          server-side using Node.js crypto APIs for AES-128-GCM encryption. File
-          processing is handled through API routes with proper validation, sanitization,
-          and error handling. PostgreSQL stores encryption history and statistics via
-          Drizzle ORM.
+          Choco OBF is built on Next.js with server-side transformation. The
+          frontend uses React with Zustand for state management. The
+          obfuscation engine tokenises Luau source and runs a series of
+          token-level passes (comment removal, scope-aware renaming, string
+          encoding, constant encoding, emission), then re-validates the output
+          before reporting success. PostgreSQL stores processing history and
+          statistics via Drizzle ORM.
         </p>
       </div>
 
       <div className="text-center py-4">
         <p className="text-[11px] text-[#2a2a2a]">
-          X0DEC04T Encrypt · Built for professional Lua developers
+          Choco OBF · Built for Roblox Luau developers
         </p>
       </div>
     </div>

@@ -170,7 +170,7 @@ export default function HistoryPage() {
           <div className="flex flex-col items-center justify-center py-16 gap-2">
             <FileText className="w-8 h-8 text-[#1a1a1a]" />
             <p className="text-[13px] text-[#3a3a3a]">
-              {search ? "No matching entries" : "No encryption history"}
+              {search ? "No matching entries" : "No obfuscation history"}
             </p>
             {search && (
               <button
@@ -187,7 +187,7 @@ export default function HistoryPage() {
             <div className="hidden md:grid grid-cols-[minmax(0,1fr)_86px_86px_82px_112px_36px] gap-3 px-4 py-2 border-b border-[var(--color-border)] text-[10px] text-[#3a3a3a] uppercase tracking-wider font-medium">
               <span>File</span>
               <span>Original</span>
-              <span>Encrypted</span>
+              <span>Protected</span>
               <span>Time</span>
               <span>Date</span>
               <span></span>
@@ -214,7 +214,7 @@ export default function HistoryPage() {
                     <span className="text-[11px] text-[#525252] font-mono text-right">
                       {formatBytes(item.originalSize)}
                     </span>
-                    <span className="text-[10px] text-[#3a3a3a]">Encrypted</span>
+                    <span className="text-[10px] text-[#3a3a3a]">Protected</span>
                     <span className="text-[11px] text-[#525252] font-mono text-right">
                       {formatBytes(item.encryptedSize)}
                     </span>

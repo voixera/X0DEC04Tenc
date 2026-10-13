@@ -37,11 +37,11 @@ function SettingsPanel() {
     { key: "renameVariable", label: "Rename Variables", description: "Obfuscate variable names" },
     { key: "renameFunction", label: "Rename Functions", description: "Obfuscate function names" },
     { key: "renameLocal", label: "Rename Locals", description: "Obfuscate local identifiers" },
-    { key: "encryptString", label: "Encrypt Strings", description: "Authenticated protection for string literals" },
+    { key: "encryptString", label: "Encode Strings", description: "Reversible per-string byte encoding" },
     { key: "encodeConstant", label: "Encode Constants", description: "Obfuscate numeric constants" },
     { key: "removeComments", label: "Remove Comments", description: "Strip all comments" },
-    { key: "compressOutput", label: "Compress Output", description: "Single-line output" },
-    { key: "protectGlobal", label: "Protect Globals", description: "Sandbox global environment" },
+    { key: "compressOutput", label: "Compress Output", description: "Compact single-block output" },
+    { key: "protectGlobal", label: "Protect Globals (unsupported)", description: "No-op; kept for compatibility" },
     { key: "minify", label: "Minify", description: "Remove whitespace" },
   ];
 
@@ -49,7 +49,7 @@ function SettingsPanel() {
     <div className="panel overflow-hidden">
       <div className="px-4 py-3 border-b border-[var(--color-border)]">
         <span className="text-[13px] font-medium text-[#e5e5e5]">
-          Encryption Settings
+          Obfuscation Settings
         </span>
       </div>
       <div className="p-3 space-y-1 max-h-[420px] overflow-y-auto">
@@ -113,7 +113,7 @@ function SettingsPanel() {
           </label>
           <input
             type="text"
-            placeholder="e.g. encrypted_output.lua"
+            placeholder="e.g. protected_output.lua"
             value={settings.outputFilename}
             onChange={(e) => updateSettings({ outputFilename: e.target.value })}
             className="w-full bg-[#181818] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-[12px] text-[#e5e5e5] placeholder:text-[#2a2a2a] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120"
@@ -170,7 +170,7 @@ function LiveLog() {
         {logs.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <span className="text-[11px] text-[#2a2a2a]">
-              Waiting for encryption process…
+              Waiting for obfuscation process…
             </span>
           </div>
         ) : (
@@ -210,7 +210,7 @@ function OutputPanel({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = file.name.replace(".lua", "_encrypted.lua");
+    a.download = file.name.replace(/\.(lua|luau)$/, "_protected.$1");
     a.click();
     URL.revokeObjectURL(url);
   }, [file]);
@@ -244,7 +244,7 @@ function OutputPanel({
           </span>
         </div>
         <div className="bg-[#181818] rounded-lg p-2">
-          <span className="text-[10px] text-[#3a3a3a] block">Encrypted</span>
+          <span className="text-[10px] text-[#3a3a3a] block">Protected</span>
           <span className="text-[12px] text-[#a3a3a3] font-mono">
             {formatBytes(file.encryptedSize)}
           </span>
@@ -437,7 +437,7 @@ export default function EncryptPage() {
     if (pending.length === 0) return;
 
     setProcessing(true);
-    log("info", `Starting encryption of ${pending.length} file(s)`);
+    log("info", `Starting obfuscation of ${pending.length} file(s)`);
     let completed = 0;
 
     for (const fileItem of pending) {
@@ -452,7 +452,7 @@ export default function EncryptPage() {
         log("info", "Scanning source…", fileItem.name);
 
         await new Promise((r) => setTimeout(r, 80));
-        log("info", "Encrypting…", fileItem.name);
+        log("info", "Obfuscating…", fileItem.name);
         updateFile(fileItem.id, { progress: 50 });
 
         const formData = new FormData();
@@ -469,7 +469,7 @@ export default function EncryptPage() {
 
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          const message = errData.error || "Encryption failed";
+          const message = errData.error || "Obfuscation failed";
 
           if (errData.historySaved === false) {
             addLocalHistory({
@@ -499,7 +499,7 @@ export default function EncryptPage() {
             settings: JSON.stringify(settings),
           });
           localHistoryRecorded = true;
-          log("warning", "Encrypted, but history was not saved", fileItem.name);
+          log("warning", "Obfuscated, but history was not saved", fileItem.name);
         }
         log("info", "Optimizing output…", fileItem.name);
         updateFile(fileItem.id, { progress: 95 });
@@ -543,8 +543,8 @@ export default function EncryptPage() {
     addNotification({
       id: generateId(),
       type: completed === pending.length ? "success" : "warning",
-      title: "Encryption Complete",
-      message: `${completed}/${pending.length} files encrypted successfully`,
+      title: "Obfuscation Complete",
+      message: `${completed}/${pending.length} files obfuscated successfully`,
     });
     log(
       "info",
@@ -559,7 +559,7 @@ export default function EncryptPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = f.name.replace(".lua", "_encrypted.lua");
+      a.download = f.name.replace(/\.(lua|luau)$/, "_protected.$1");
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -577,7 +577,7 @@ export default function EncryptPage() {
       <div className="mb-5 flex items-end justify-between gap-4">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[.2em] text-emerald-400">Secure build pipeline</p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--color-text)]">Encrypt source</h2>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--color-text)]">Obfuscate source</h2>
           <p className="mt-1 text-xs text-[var(--color-muted)]">Upload Lua or Luau, apply the active preset, and download the protected output.</p>
         </div>
         <span className="hidden rounded-md border border-emerald-400/20 bg-emerald-400/5 px-2 py-1 font-mono text-[10px] text-emerald-400 sm:block">ENGINE ONLINE</span>
@@ -694,7 +694,7 @@ export default function EncryptPage() {
                       onClick={processQueue}
                       className="primary-action flex items-center gap-1.5 px-2.5 py-1 text-[11px] transition-colors duration-120"
                     >
-                      Encrypt {pendingCount}
+                      Obfuscate {pendingCount}
                     </button>
                   )}
                   {!isProcessing && (

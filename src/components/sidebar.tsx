@@ -16,7 +16,7 @@ import type { PageId } from "@/lib/types";
 
 const navItems: { id: PageId; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "encrypt", label: "Encrypt", icon: Shield },
+  { id: "encrypt", label: "Obfuscate", icon: Shield },
   { id: "history", label: "History", icon: History },
   { id: "settings", label: "Settings", icon: Settings },
   { id: "account", label: "Account", icon: Settings },
@@ -49,10 +49,10 @@ export default function Sidebar() {
           </div>
           <div className="flex flex-col">
             <span className="text-[13px] font-semibold text-[var(--color-text)] tracking-tight leading-tight">
-              X0DEC04T
+              Choco OBF
             </span>
             <span className="text-[10px] text-[var(--color-muted)] font-medium uppercase tracking-wider leading-tight">
-              Encrypt
+              Obfuscator
             </span>
           </div>
           <button
