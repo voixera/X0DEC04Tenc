@@ -155,11 +155,11 @@ export default function SettingsPage() {
     <div className="max-w-3xl space-y-4 animate-fade-in">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[.2em] text-emerald-400">Preset control</p>
-          <h2 className="mt-1 text-lg font-semibold text-[var(--color-text)]">
+          <p className="eyebrow">Preset control</p>
+          <h2 className="display-xl mt-2 text-[color:var(--color-text)]">
             Obfuscation configuration
           </h2>
-          <p className="text-[12px] text-[var(--color-muted)] mt-0.5">
+          <p className="mt-2 text-[12px] text-[var(--color-muted)]">
             Choose how Lua and Luau files are transformed before export.
           </p>
         </div>
@@ -190,14 +190,14 @@ export default function SettingsPage() {
         {settingsMeta.map((meta, idx) => (
           <div
             key={meta.key}
-            className="flex items-start justify-between px-4 py-4 hover:bg-[#141414] transition-colors duration-120 animate-fade-in"
+            className="flex items-start justify-between px-4 py-4 hover:bg-[var(--color-surface)] transition-colors duration-120 animate-fade-in"
             style={{ animationDelay: `${idx * 30}ms` }}
           >
             <div className="flex-1 mr-4">
-              <span className="text-[13px] text-[#e5e5e5] font-medium">
+              <span className="text-[13px] text-[var(--color-text)] font-medium">
                 {meta.label}
               </span>
-              <p className="text-[11px] text-[#525252] mt-0.5 leading-relaxed">
+              <p className="text-[11px] text-[var(--color-muted)] mt-0.5 leading-relaxed">
                 {meta.description}
               </p>
             </div>
@@ -211,15 +211,15 @@ export default function SettingsPage() {
                   }
                   className={cn(
                     "w-9 h-5 rounded-full relative transition-colors duration-180",
-                    settings[meta.key] ? "bg-[#e5e5e5]" : "bg-[#2a2a2a]"
+                    settings[meta.key] ? "bg-[var(--color-text)]" : "bg-[var(--color-muted)]"
                   )}
                 >
                   <div
                     className={cn(
                       "absolute top-[3px] w-[14px] h-[14px] rounded-full transition-all duration-180",
                       settings[meta.key]
-                        ? "left-[20px] bg-[#090909]"
-                        : "left-[3px] bg-[#525252]"
+                        ? "left-[20px] bg-[#1c0f0b]"
+                        : "left-[3px] bg-[var(--color-muted)]"
                     )}
                   />
                 </button>
@@ -237,7 +237,7 @@ export default function SettingsPage() {
                       ),
                     } as Partial<EncryptionSettings>)
                   }
-                  className="w-20 bg-[#181818] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-[12px] text-[#e5e5e5] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120 text-center"
+                  className="w-20 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-[12px] text-[var(--color-text)] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120 text-center"
                 />
               ) : (
                 <input
@@ -249,7 +249,7 @@ export default function SettingsPage() {
                       [meta.key]: e.target.value,
                     } as Partial<EncryptionSettings>)
                   }
-                  className="w-40 bg-[#181818] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-[12px] text-[#e5e5e5] placeholder:text-[#2a2a2a] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120"
+                  className="w-40 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-[12px] text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120"
                 />
               )}
             </div>

@@ -53,15 +53,17 @@ function PageRenderer() {
 
 export default function Home() {
   return (
-    <AuthGate><div className="min-h-screen flex overflow-x-hidden premium-shell">
-      <Sidebar />
-      <div className="min-w-0 flex-1 lg:ml-[220px] flex flex-col min-h-screen">
-        <Topbar />
-        <main className="min-w-0 flex-1 p-4 lg:p-6">
-          <PageRenderer />
-        </main>
+    <AuthGate>
+      <div className="premium-shell flex min-h-screen overflow-x-hidden">
+        <Sidebar />
+        <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:ml-[232px]">
+          <Topbar />
+          <main className="min-w-0 flex-1 p-4 lg:p-7">
+            <PageRenderer />
+          </main>
+        </div>
+        <NotificationProvider />
       </div>
-      <NotificationProvider />
-    </div></AuthGate>
+    </AuthGate>
   );
 }

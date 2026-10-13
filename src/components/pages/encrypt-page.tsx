@@ -28,6 +28,7 @@ import {
 } from "@/lib/utils";
 import { getClientUserId } from "@/lib/user";
 import { addLocalHistory } from "@/lib/local-history";
+import { CodeSnippet } from "@/components/hero/code-snippet";
 import type { FileItem, LogEntry } from "@/lib/types";
 
 function SettingsPanel() {
@@ -47,27 +48,32 @@ function SettingsPanel() {
 
   return (
     <div className="panel overflow-hidden">
-      <div className="px-4 py-3 border-b border-[var(--color-border)]">
-        <span className="text-[13px] font-medium text-[#e5e5e5]">
-          Obfuscation Settings
+      <div className="border-b border-[var(--color-border)] px-4 py-3.5">
+        <span className="font-display text-[17px] text-[color:var(--color-text)]">
+          Obfuscation settings
         </span>
       </div>
-      <div className="p-3 space-y-1 max-h-[420px] overflow-y-auto">
+      <div className="max-h-[420px] space-y-1 overflow-y-auto p-3">
         {toggles.map((t) => (
           <label
             key={t.key}
-            className="flex items-start justify-between gap-3 px-2 py-2 rounded-lg hover:bg-[#181818] transition-colors duration-120 cursor-pointer group"
+            className="group flex cursor-pointer items-start justify-between gap-3 rounded-[var(--radius-base)] px-2.5 py-2 transition-colors hover:bg-[color-mix(in_srgb,var(--color-brand)_7%,transparent)]"
           >
-            <div className="flex flex-col min-w-0">
-              <span className="text-[12px] text-[#a3a3a3] group-hover:text-[#e5e5e5] transition-colors duration-120">
+            <div className="flex min-w-0 flex-col">
+              <span className="text-[12px] text-[var(--color-accent-dim)] transition-colors group-hover:text-[var(--color-text)]">
                 {t.label}
               </span>
-              <span className="text-[10px] text-[#3a3a3a]">{t.description}</span>
+              <span className="text-[10px] text-[var(--color-muted)]">{t.description}</span>
             </div>
             <div
+              role="switch"
+              aria-checked={!!settings[t.key]}
+              aria-label={t.label}
               className={cn(
-                "w-8 h-[18px] rounded-full relative transition-colors duration-180 shrink-0 ml-3",
-                settings[t.key] ? "bg-[#e5e5e5]" : "bg-[#2a2a2a]"
+                "relative ml-3 h-[18px] w-8 shrink-0 rounded-full transition-colors duration-180",
+                settings[t.key]
+                  ? "bg-[linear-gradient(180deg,#c98a54,#a56c43)]"
+                  : "bg-[var(--color-cocoa-600)]"
               )}
               onClick={(e) => {
                 e.preventDefault();
@@ -76,19 +82,19 @@ function SettingsPanel() {
             >
               <div
                 className={cn(
-                  "absolute top-[2px] w-[14px] h-[14px] rounded-full transition-all duration-180",
+                  "absolute top-[2px] h-[14px] w-[14px] rounded-full transition-all duration-180",
                   settings[t.key]
-                    ? "left-[18px] bg-[#090909]"
-                    : "left-[2px] bg-[#525252]"
+                    ? "left-[18px] bg-[#1c0f0b]"
+                    : "left-[2px] bg-[var(--color-muted)]"
                 )}
               />
             </div>
           </label>
         ))}
 
-        <div className="px-2 py-2">
-          <label className="text-[12px] text-[#525252] block mb-1.5">
-            Random Identifier Length
+        <div className="px-2.5 py-2">
+          <label className="mb-1.5 block text-[12px] text-[var(--color-muted)]">
+            Random identifier length
           </label>
           <input
             type="number"
@@ -103,20 +109,20 @@ function SettingsPanel() {
                 ),
               })
             }
-            className="w-full bg-[#181818] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-[12px] text-[#e5e5e5] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120"
+            className="auth-input px-3 py-2 text-[12px]"
           />
         </div>
 
-        <div className="px-2 py-2">
-          <label className="text-[12px] text-[#525252] block mb-1.5">
-            Output Filename (optional)
+        <div className="px-2.5 py-2">
+          <label className="mb-1.5 block text-[12px] text-[var(--color-muted)]">
+            Output filename (optional)
           </label>
           <input
             type="text"
             placeholder="e.g. protected_output.lua"
             value={settings.outputFilename}
             onChange={(e) => updateSettings({ outputFilename: e.target.value })}
-            className="w-full bg-[#181818] border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-[12px] text-[#e5e5e5] placeholder:text-[#2a2a2a] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120"
+            className="auth-input px-3 py-2 text-[12px]"
           />
         </div>
       </div>
@@ -136,20 +142,20 @@ function LiveLog() {
   }, [logs]);
 
   const levelColors = {
-    info: "text-[#525252]",
-    success: "text-green-400",
-    warning: "text-amber-400",
-    error: "text-red-400",
+    info: "text-[var(--color-muted)]",
+    success: "text-[var(--color-success)]",
+    warning: "text-[var(--color-warning)]",
+    error: "text-[var(--color-error)]",
   };
 
   return (
     <div className="panel overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
+      <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3">
         <div className="flex items-center gap-2">
-          <Terminal className="w-3.5 h-3.5 text-[#525252]" />
-          <span className="text-[13px] font-medium text-[#e5e5e5]">Live Log</span>
+          <Terminal className="h-3.5 w-3.5 text-[var(--color-muted)]" />
+          <span className="font-display text-[15px] text-[color:var(--color-text)]">Live log</span>
           {logs.length > 0 && (
-            <span className="text-[10px] text-[#3a3a3a] font-mono">
+            <span className="font-mono text-[10px] text-[var(--color-muted)]">
               {logs.length}
             </span>
           )}
@@ -157,7 +163,7 @@ function LiveLog() {
         {logs.length > 0 && (
           <button
             onClick={clearLogs}
-            className="text-[11px] text-[#3a3a3a] hover:text-[#737373] transition-colors duration-120"
+            className="text-[11px] text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
           >
             Clear
           </button>
@@ -165,18 +171,18 @@ function LiveLog() {
       </div>
       <div
         ref={scrollRef}
-        className="h-[200px] overflow-y-auto p-3 font-mono text-[11px] space-y-0.5"
+        className="h-[200px] space-y-0.5 overflow-y-auto p-3 font-mono text-[11px]"
       >
         {logs.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <span className="text-[11px] text-[#2a2a2a]">
+          <div className="flex h-full items-center justify-center">
+            <span className="text-[11px] text-[var(--color-muted)]">
               Waiting for obfuscation process…
             </span>
           </div>
         ) : (
           logs.map((log) => (
-            <div key={log.id} className="flex gap-2 animate-fade-in">
-              <span className="text-[#2a2a2a] shrink-0">
+            <div key={log.id} className="flex animate-fade-in gap-2">
+              <span className="shrink-0 text-[var(--color-cocoa-400)]">
                 {new Date(log.timestamp).toLocaleTimeString("en-US", {
                   hour12: false,
                   hour: "2-digit",
@@ -229,59 +235,74 @@ function OutputPanel({
   if (file.status !== "done") return null;
 
   return (
-    <div className="panel p-3 animate-fade-in">
-      <div className="flex items-center gap-2 mb-3">
-        <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
-        <span className="text-[12px] text-[#e5e5e5] font-mono truncate flex-1">
+    <div className="panel animate-fade-in overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-[var(--color-border)] px-4 py-3">
+        <CheckCircle2 className="h-3.5 w-3.5 text-[var(--color-success)]" />
+        <span className="flex-1 truncate font-mono text-[12px] text-[color:var(--color-text)]">
           {file.name}
         </span>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-        <div className="bg-[#181818] rounded-lg p-2">
-          <span className="text-[10px] text-[#3a3a3a] block">Original</span>
-          <span className="text-[12px] text-[#a3a3a3] font-mono">
-            {formatBytes(file.originalSize)}
+
+      <div className="grid grid-cols-2 gap-px border-b border-[var(--color-border)] bg-[var(--color-border)] sm:grid-cols-4">
+        {[
+          { label: "Original", value: formatBytes(file.originalSize) },
+          { label: "Protected", value: formatBytes(file.encryptedSize) },
+          { label: "Reduction", value: calcReduction(file.originalSize, file.encryptedSize) },
+          { label: "Time", value: formatMs(file.encryptionTime) },
+        ].map((m) => (
+          <div key={m.label} className="bg-[var(--color-bg-secondary)] px-3 py-2.5">
+            <span className="block font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--color-muted)]">
+              {m.label}
+            </span>
+            <span className="mt-1 block font-mono text-[12px] text-[var(--color-accent-dim)]">
+              {m.value}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--color-muted)]">
+            Generated output · preview
           </span>
+          {copied && (
+            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--color-success)]">
+              copied
+            </span>
+          )}
         </div>
-        <div className="bg-[#181818] rounded-lg p-2">
-          <span className="text-[10px] text-[#3a3a3a] block">Protected</span>
-          <span className="text-[12px] text-[#a3a3a3] font-mono">
-            {formatBytes(file.encryptedSize)}
-          </span>
-        </div>
-        <div className="bg-[#181818] rounded-lg p-2">
-          <span className="text-[10px] text-[#3a3a3a] block">Reduction</span>
-          <span className="text-[12px] text-[#a3a3a3] font-mono">
-            {calcReduction(file.originalSize, file.encryptedSize)}
-          </span>
-        </div>
-        <div className="bg-[#181818] rounded-lg p-2">
-          <span className="text-[10px] text-[#3a3a3a] block">Time</span>
-          <span className="text-[12px] text-[#a3a3a3] font-mono">
-            {formatMs(file.encryptionTime)}
-          </span>
+        <div className="code-surface scanline max-h-[168px] overflow-hidden px-3 py-2.5 text-[10.5px] leading-relaxed">
+          <CodeSnippet
+            code={(file.encryptedContent || "").slice(0, 520)}
+            className="whitespace-pre-wrap break-all"
+          />
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
+
+      <div className="flex flex-wrap gap-2 border-t border-[var(--color-border)] px-3 py-3">
         <button
           onClick={downloadFile}
-          className="primary-action flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] transition-colors duration-120"
+          className="primary-action motion-press flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px]"
         >
-          <Download className="w-3 h-3" />
+          <Download className="h-3 w-3" />
           Download
         </button>
         <button
           onClick={() => onPreview(file)}
-          className={cn("secondary-action flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120", copied && "action-success")}
+          className="secondary-action motion-press flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px]"
         >
-          <Eye className="w-3 h-3" />
+          <Eye className="h-3 w-3" />
           Preview
         </button>
         <button
           onClick={copyToClipboard}
-          className="secondary-action flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
+          className={cn(
+            "secondary-action motion-press flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px]",
+            copied && "action-success"
+          )}
         >
-          {copied ? <CheckCircle2 className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+          {copied ? <CheckCircle2 className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
@@ -300,28 +321,58 @@ function PreviewModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="panel w-full max-w-2xl max-h-[80vh] flex flex-col animate-slide-in-up"
+        className="panel flex max-h-[85vh] w-full max-w-5xl flex-col animate-slide-in-up"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
-          <span className="text-[13px] font-medium text-[#e5e5e5] truncate">
-            {file.name}
-          </span>
+        <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-3.5">
+          <div className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-caramel-bright)]" />
+            <span className="truncate font-mono text-[13px] text-[color:var(--color-text)]">
+              {file.name}
+            </span>
+          </div>
           <button
             onClick={onClose}
-            className="text-[#525252] hover:text-[#e5e5e5] transition-colors duration-120 text-lg"
+            aria-label="Close preview"
+            className="text-lg text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
           >
             ×
           </button>
         </div>
-        <div className="flex-1 overflow-auto p-4">
-          <pre className="text-[11px] font-mono text-[#a3a3a3] whitespace-pre-wrap break-all leading-relaxed">
-            {file.encryptedContent}
-          </pre>
+
+        <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-2">
+          <div className="flex min-h-0 flex-col border-b border-[var(--color-border)] md:border-b-0 md:border-r">
+            <div className="border-b border-[var(--color-border)] px-4 py-2">
+              <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                Source
+              </span>
+            </div>
+            <div className="min-h-0 flex-1 overflow-auto bg-[var(--color-bg)] p-4">
+              <p className="font-mono text-[11px] leading-relaxed text-[var(--color-muted)]">
+                {file.name} · {formatBytes(file.originalSize)}
+                <br />
+                The original source is processed in memory and is not retained
+                for preview. Only the generated output is shown here.
+              </p>
+            </div>
+          </div>
+          <div className="flex min-h-0 flex-col">
+            <div className="border-b border-[var(--color-border)] px-4 py-2">
+              <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--color-brand)]">
+                Generated output
+              </span>
+            </div>
+            <div className="min-h-0 flex-1 overflow-auto bg-[var(--color-bg)] p-4">
+              <CodeSnippet
+                code={file.encryptedContent}
+                className="whitespace-pre-wrap break-all font-mono text-[11px] leading-relaxed"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -576,11 +627,11 @@ export default function EncryptPage() {
     <div className="animate-fade-in">
       <div className="mb-5 flex items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[.2em] text-emerald-400">Secure build pipeline</p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--color-text)]">Obfuscate source</h2>
-          <p className="mt-1 text-xs text-[var(--color-muted)]">Upload Lua or Luau, apply the active preset, and download the protected output.</p>
+          <p className="eyebrow">Build pipeline</p>
+          <h2 className="display-xl mt-2 text-[color:var(--color-text)]">Obfuscate source</h2>
+          <p className="mt-2 text-xs text-[var(--color-muted)]">Upload Lua or Luau, apply the active preset, and download the protected output.</p>
         </div>
-        <span className="hidden rounded-md border border-emerald-400/20 bg-emerald-400/5 px-2 py-1 font-mono text-[10px] text-emerald-400 sm:block">ENGINE ONLINE</span>
+        <span className="hidden rounded-full border border-[var(--color-border-strong)] bg-[var(--color-brand)]/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--color-brand)] sm:block">Engine online</span>
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-4">
         <div className="space-y-4 min-w-0">
@@ -590,35 +641,35 @@ export default function EncryptPage() {
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             className={cn(
-              "border-2 border-dashed rounded-lg transition-all duration-180 flex flex-col items-center justify-center min-h-[180px] cursor-pointer p-4 text-center",
+              "cocoa-grain relative flex min-h-[190px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[var(--radius-lg)] border border-dashed p-4 text-center transition-all duration-200",
               dragOver
-                ? "border-[#e5e5e5]/30 bg-[#e5e5e5]/[0.02]"
-                : "border-[var(--color-border)] hover:border-[var(--color-border-hover)] bg-[#111111]"
+                ? "border-[var(--color-border-hover)] bg-[var(--color-brand)]/8"
+                : "border-[var(--color-border-strong)] bg-[var(--color-bg-secondary)] hover:border-[var(--color-border-hover)]"
             )}
             onClick={() => inputRef.current?.click()}
           >
             <Upload
               className={cn(
-                "w-8 h-8 mb-3 transition-colors duration-180",
-                dragOver ? "text-[#e5e5e5]" : "text-[#2a2a2a]"
+                "mb-3 h-8 w-8 transition-colors duration-200",
+                dragOver ? "text-[var(--color-caramel-bright)]" : "text-[var(--color-muted)]"
               )}
             />
-            <p className="text-[13px] text-[#737373] mb-1">
+            <p className="mb-1 text-[13px] text-[var(--color-accent-dim)]">
               Drop .lua or .luau files here or{" "}
-              <span className="text-[#a3a3a3] underline underline-offset-2">browse</span>
+              <span className="text-[color:var(--color-text)] underline underline-offset-2">browse</span>
             </p>
-            <p className="text-[11px] text-[#3a3a3a]">
-              Supports batch upload up to 500+ files · Max 10MB per file
+            <p className="text-[11px] text-[var(--color-muted)]">
+              Batch upload · max 10MB per file
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   inputRef.current?.click();
                 }}
-                className="secondary-action flex items-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
+                className="secondary-action motion-press flex items-center gap-1.5 px-3 py-1.5 text-[11px]"
               >
-                <File className="w-3 h-3" />
+                <File className="h-3 w-3" />
                 Files
               </button>
               <button
@@ -626,9 +677,9 @@ export default function EncryptPage() {
                   e.stopPropagation();
                   folderRef.current?.click();
                 }}
-                className="secondary-action flex items-center gap-1.5 px-3 py-1.5 text-[11px] transition-all duration-120"
+                className="secondary-action motion-press flex items-center gap-1.5 px-3 py-1.5 text-[11px]"
               >
-                <FolderOpen className="w-3 h-3" />
+                <FolderOpen className="h-3 w-3" />
                 Folder
               </button>
             </div>
@@ -665,16 +716,16 @@ export default function EncryptPage() {
           {/* File List */}
           {files.length > 0 && (
             <div className="panel overflow-hidden">
-              <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-[var(--color-border)]">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border)] px-4 py-3">
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="text-[13px] font-medium text-[#e5e5e5]">
+                  <span className="font-display text-[15px] text-[color:var(--color-text)]">
                     Queue
                   </span>
-                  <span className="text-[11px] text-[#3a3a3a] font-mono">
+                  <span className="font-mono text-[11px] text-[var(--color-muted)]">
                     {files.length} file{files.length !== 1 ? "s" : ""}
                   </span>
                   {isProcessing && (
-                    <span className="text-[11px] text-[#525252]">
+                    <span className="font-mono text-[11px] text-[var(--color-brand)]">
                       {totalProgress}%
                     </span>
                   )}
@@ -683,16 +734,16 @@ export default function EncryptPage() {
                   {doneCount > 0 && (
                     <button
                       onClick={downloadAll}
-                      className="primary-action flex items-center gap-1.5 px-2.5 py-1 text-[11px] transition-colors duration-120"
+                      className="primary-action motion-press flex items-center gap-1.5 px-2.5 py-1 text-[11px]"
                     >
-                      <Download className="w-3 h-3" />
+                      <Download className="h-3 w-3" />
                       All
                     </button>
                   )}
                   {!isProcessing && pendingCount > 0 && (
                     <button
                       onClick={processQueue}
-                      className="primary-action flex items-center gap-1.5 px-2.5 py-1 text-[11px] transition-colors duration-120"
+                      className="primary-action motion-press flex items-center gap-1.5 px-2.5 py-1 text-[11px]"
                     >
                       Obfuscate {pendingCount}
                     </button>
@@ -700,66 +751,68 @@ export default function EncryptPage() {
                   {!isProcessing && (
                     <button
                       onClick={clearFiles}
-                      className="text-[#3a3a3a] hover:text-[#737373] transition-colors duration-120"
+                      aria-label="Clear queue"
+                      className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
               </div>
 
               {isProcessing && (
-                <div className="h-[2px] bg-[#181818]">
+                <div className="h-[2px] bg-[var(--color-bg)]">
                   <div
-                    className="h-full bg-[#e5e5e5] transition-all duration-240"
+                    className="h-full bg-[linear-gradient(90deg,#a56c43,#c98a54)] transition-all duration-240"
                     style={{ width: `${totalProgress}%` }}
                   />
                 </div>
               )}
 
-              <div className="max-h-[300px] overflow-y-auto divide-y divide-[var(--color-border)]">
+              <div className="max-h-[300px] divide-y divide-[var(--color-border)] overflow-y-auto">
                 {files.map((f, idx) => (
                   <div
                     key={f.id}
-                    className="flex min-w-0 flex-wrap sm:flex-nowrap items-center gap-3 px-4 py-2.5 hover:bg-[#141414] transition-colors duration-120 animate-fade-in"
+                    className="flex min-w-0 animate-fade-in flex-wrap items-center gap-3 px-4 py-2.5 transition-colors hover:bg-[color-mix(in_srgb,var(--color-brand)_6%,transparent)] sm:flex-nowrap"
                     style={{ animationDelay: `${Math.min(idx, 10) * 30}ms` }}
                   >
                     <div className="shrink-0">
                       {f.status === "done" ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-[var(--color-success)]" />
                       ) : f.status === "error" ? (
-                        <XCircle className="w-3.5 h-3.5 text-red-400" />
+                        <XCircle className="h-3.5 w-3.5 text-[var(--color-error)]" />
                       ) : f.status === "encrypting" || f.status === "validating" ? (
-                        <Loader2 className="w-3.5 h-3.5 text-[#a3a3a3] animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--color-accent-dim)]" />
                       ) : (
-                        <File className="w-3.5 h-3.5 text-[#3a3a3a]" />
+                        <File className="h-3.5 w-3.5 text-[var(--color-muted)]" />
                       )}
                     </div>
-                    <span className="text-[12px] text-[#a3a3a3] font-mono truncate flex-1 min-w-[140px]">
+                    <span className="min-w-[140px] flex-1 truncate font-mono text-[12px] text-[var(--color-accent-dim)]">
                       {f.name}
                     </span>
-                    <span className="text-[11px] text-[#3a3a3a] shrink-0 font-mono">
+                    <span className="shrink-0 font-mono text-[11px] text-[var(--color-muted)]">
                       {formatBytes(f.size)}
                     </span>
                     {f.status === "encrypting" || f.status === "validating" ? (
-                      <div className="w-16 h-1 bg-[#181818] rounded-full overflow-hidden shrink-0">
+                      <div className="h-1 w-16 shrink-0 overflow-hidden rounded-full bg-[var(--color-bg)]">
                         <div
-                          className="h-full bg-[#a3a3a3] transition-all duration-180 rounded-full"
+                          className="h-full rounded-full bg-[var(--color-caramel-bright)] transition-all duration-200"
                           style={{ width: `${f.progress}%` }}
                         />
                       </div>
                     ) : null}
                     {f.error && (
-                      <span className="text-[10px] text-red-400 shrink-0 max-w-[100px] truncate">
+                      <span className="max-w-[100px] shrink-0 truncate text-[10px] text-[var(--color-error)]">
                         {f.error}
                       </span>
                     )}
                     {!isProcessing && (
                       <button
                         onClick={() => removeFile(f.id)}
-                        className="text-[#2a2a2a] hover:text-[#737373] transition-colors duration-120 shrink-0"
+                        aria-label={`Remove ${f.name}`}
+                        className="shrink-0 text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="h-3 w-3" />
                       </button>
                     )}
                   </div>
@@ -771,7 +824,7 @@ export default function EncryptPage() {
           {/* Output Results */}
           {files.filter((f) => f.status === "done").length > 0 && (
             <div className="space-y-3">
-              <span className="text-[13px] font-medium text-[#e5e5e5]">Output</span>
+              <span className="font-display text-[17px] text-[color:var(--color-text)]">Output</span>
               {files
                 .filter((f) => f.status === "done")
                 .map((f) => (

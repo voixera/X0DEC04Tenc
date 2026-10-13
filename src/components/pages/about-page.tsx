@@ -6,63 +6,66 @@ export default function AboutPage() {
   return (
     <div className="max-w-2xl space-y-6 animate-fade-in">
       <div>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-9 h-9 rounded-[10px] bg-[#111111] border border-[var(--color-border)] flex items-center justify-center">
-            <Lock className="w-4 h-4 text-[#e5e5e5]" />
+        <div className="mb-4 flex items-center gap-3">
+          <div className="brand-mark grid h-11 w-11 place-items-center rounded-[12px]">
+            <Lock className="h-4 w-4 text-[#c98a54]" />
           </div>
           <div>
-            <h2 className="text-[16px] font-semibold text-[#e5e5e5] tracking-tight">
+            <h1 className="choco-wordmark font-display text-2xl leading-none">
               Choco OBF
-            </h2>
-            <span className="text-[11px] text-[#525252] font-mono">v2.0.0</span>
+            </h1>
+            <span className="mt-1 block font-mono text-[11px] text-[var(--color-muted)]">
+              v2.0.0 · Luau obfuscator
+            </span>
           </div>
         </div>
-        <p className="text-[13px] text-[#737373] leading-relaxed mt-4">
-          Choco OBF is a Luau source code obfuscation platform for Roblox
+        <p className="lede max-w-xl">
+          Choco OBF is a Luau source-code obfuscation toolkit for Roblox
           developers. It transforms readable scripts into harder-to-read
-          equivalents while preserving the original runtime behaviour.
+          equivalents while preserving the original runtime behaviour — and
+          validates the result before reporting success.
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] p-4 animate-fade-in" style={{ animationDelay: "60ms" }}>
-          <Shield className="w-5 h-5 text-[#525252] mb-3" />
-          <h3 className="text-[13px] font-medium text-[#e5e5e5] mb-1">
+        <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-[10px] p-4 animate-fade-in" style={{ animationDelay: "60ms" }}>
+          <Shield className="w-5 h-5 text-[var(--color-muted)] mb-3" />
+          <h3 className="text-[13px] font-medium text-[var(--color-text)] mb-1">
             Multi-Layer Obfuscation
           </h3>
-          <p className="text-[11px] text-[#525252] leading-relaxed">
+          <p className="text-[11px] text-[var(--color-muted)] leading-relaxed">
             Scope-aware identifier renaming, reversible string encoding,
             constant encoding, and comment stripping are combined for defense
             in depth. This is obfuscation, not encryption.
           </p>
         </div>
 
-        <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] p-4 animate-fade-in" style={{ animationDelay: "120ms" }}>
-          <Zap className="w-5 h-5 text-[#525252] mb-3" />
-          <h3 className="text-[13px] font-medium text-[#e5e5e5] mb-1">
+        <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-[10px] p-4 animate-fade-in" style={{ animationDelay: "120ms" }}>
+          <Zap className="w-5 h-5 text-[var(--color-muted)] mb-3" />
+          <h3 className="text-[13px] font-medium text-[var(--color-text)] mb-1">
             High Performance
           </h3>
-          <p className="text-[11px] text-[#525252] leading-relaxed">
+          <p className="text-[11px] text-[var(--color-muted)] leading-relaxed">
             Processes hundreds of files with minimal latency. Queue-based batch
             processing ensures stable operation under heavy workloads.
           </p>
         </div>
 
-        <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] p-4 animate-fade-in" style={{ animationDelay: "180ms" }}>
-          <Lock className="w-5 h-5 text-[#525252] mb-3" />
-          <h3 className="text-[13px] font-medium text-[#e5e5e5] mb-1">
+        <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-[10px] p-4 animate-fade-in" style={{ animationDelay: "180ms" }}>
+          <Lock className="w-5 h-5 text-[var(--color-muted)] mb-3" />
+          <h3 className="text-[13px] font-medium text-[var(--color-text)] mb-1">
             Privacy First
           </h3>
-          <p className="text-[11px] text-[#525252] leading-relaxed">
+          <p className="text-[11px] text-[var(--color-muted)] leading-relaxed">
             Files are processed in memory and never persisted to disk. Only metadata
             is stored for history tracking. Your source code stays private.
           </p>
         </div>
       </div>
 
-      <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] overflow-hidden">
+      <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-[10px] overflow-hidden">
         <div className="px-4 py-3 border-b border-[var(--color-border)]">
-          <span className="text-[13px] font-medium text-[#e5e5e5]">
+          <span className="text-[13px] font-medium text-[var(--color-text)]">
             Technical Specifications
           </span>
         </div>
@@ -81,20 +84,20 @@ export default function AboutPage() {
           ].map((row, idx) => (
             <div
               key={idx}
-              className="flex items-center justify-between px-4 py-2.5 hover:bg-[#141414] transition-colors duration-120"
+              className="flex items-center justify-between px-4 py-2.5 hover:bg-[var(--color-surface)] transition-colors duration-120"
             >
-              <span className="text-[12px] text-[#737373]">{row.label}</span>
-              <span className="text-[12px] text-[#a3a3a3] font-mono">{row.value}</span>
+              <span className="text-[12px] text-[var(--color-accent-dim)]">{row.label}</span>
+              <span className="text-[12px] text-[var(--color-accent-dim)] font-mono">{row.value}</span>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] p-4">
-        <h3 className="text-[13px] font-medium text-[#e5e5e5] mb-2">
+      <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-[10px] p-4">
+        <h3 className="text-[13px] font-medium text-[var(--color-text)] mb-2">
           Architecture
         </h3>
-        <p className="text-[12px] text-[#525252] leading-relaxed">
+        <p className="text-[12px] text-[var(--color-muted)] leading-relaxed">
           Choco OBF is built on Next.js with server-side transformation. The
           frontend uses React with Zustand for state management. The
           obfuscation engine tokenises Luau source and runs a series of
@@ -106,7 +109,7 @@ export default function AboutPage() {
       </div>
 
       <div className="text-center py-4">
-        <p className="text-[11px] text-[#2a2a2a]">
+        <p className="text-[11px] text-[var(--color-muted)]">
           Choco OBF · Built for Roblox Luau developers
         </p>
       </div>

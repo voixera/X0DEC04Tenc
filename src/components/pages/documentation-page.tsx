@@ -113,19 +113,19 @@ function FAQItem({ q, a }: { q: string; a: string }) {
     <div className="border-b border-[var(--color-border)] last:border-0">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-[#141414] transition-colors duration-120"
+        className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-[var(--color-surface)] transition-colors duration-120"
       >
-        <span className="text-[13px] text-[#a3a3a3] font-medium pr-4">{q}</span>
+        <span className="text-[13px] text-[var(--color-accent-dim)] font-medium pr-4">{q}</span>
         <ChevronDown
           className={cn(
-            "w-3.5 h-3.5 text-[#3a3a3a] shrink-0 transition-transform duration-180",
+            "w-3.5 h-3.5 text-[var(--color-muted)] shrink-0 transition-transform duration-180",
             open ? "rotate-180" : ""
           )}
         />
       </button>
       {open && (
         <div className="px-4 pb-3 animate-fade-in">
-          <p className="text-[12px] text-[#525252] leading-relaxed">{a}</p>
+          <p className="text-[12px] text-[var(--color-muted)] leading-relaxed">{a}</p>
         </div>
       )}
     </div>
@@ -136,20 +136,21 @@ export default function DocumentationPage() {
   return (
     <div className="max-w-2xl space-y-6 animate-fade-in">
       <div>
-        <h2 className="text-[14px] font-semibold text-[#e5e5e5]">Documentation</h2>
-        <p className="text-[12px] text-[#525252] mt-0.5">
-          Complete guide for using Choco OBF effectively.
+        <p className="eyebrow">Reference</p>
+        <h2 className="display-xl mt-2 text-[color:var(--color-text)]">Documentation</h2>
+        <p className="mt-2 text-[12px] text-[var(--color-muted)]">
+          A practical guide to the Choco OBF workflow and its current limits.
         </p>
       </div>
 
       {sections.map((section, sIdx) => (
         <div
           key={section.id}
-          className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] overflow-hidden animate-fade-in"
+          className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-[10px] overflow-hidden animate-fade-in"
           style={{ animationDelay: `${sIdx * 60}ms` }}
         >
           <div className="px-4 py-3 border-b border-[var(--color-border)]">
-            <span className="text-[13px] font-medium text-[#e5e5e5]">
+            <span className="text-[13px] font-medium text-[var(--color-text)]">
               {section.title}
             </span>
           </div>
@@ -157,7 +158,7 @@ export default function DocumentationPage() {
             {section.content.map((paragraph, pIdx) => (
               <p
                 key={pIdx}
-                className="text-[12px] text-[#737373] leading-relaxed"
+                className="text-[12px] text-[var(--color-accent-dim)] leading-relaxed"
               >
                 {paragraph}
               </p>
@@ -166,9 +167,9 @@ export default function DocumentationPage() {
         </div>
       ))}
 
-      <div className="bg-[#111111] border border-[var(--color-border)] rounded-[10px] overflow-hidden">
+      <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-[10px] overflow-hidden">
         <div className="px-4 py-3 border-b border-[var(--color-border)]">
-          <span className="text-[13px] font-medium text-[#e5e5e5]">
+          <span className="text-[13px] font-medium text-[var(--color-text)]">
             Frequently Asked Questions
           </span>
         </div>

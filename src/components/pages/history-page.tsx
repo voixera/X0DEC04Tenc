@@ -109,11 +109,11 @@ export default function HistoryPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 animate-fade-in">
-        <AlertCircle className="w-8 h-8 text-[#525252]" />
-        <p className="text-[13px] text-[#525252]">{error}</p>
+        <AlertCircle className="w-8 h-8 text-[var(--color-muted)]" />
+        <p className="text-[13px] text-[var(--color-muted)]">{error}</p>
         <button
           onClick={fetchHistory}
-          className="text-[12px] text-[#737373] hover:text-[#e5e5e5] transition-colors duration-120 underline underline-offset-2"
+          className="text-[12px] text-[var(--color-accent-dim)] hover:text-[var(--color-text)] transition-colors duration-120 underline underline-offset-2"
         >
           Retry
         </button>
@@ -125,7 +125,7 @@ export default function HistoryPage() {
     <div className="space-y-4 animate-fade-in">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#3a3a3a]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-muted)]" />
           <input
             type="text"
             placeholder="Search files…"
@@ -134,7 +134,7 @@ export default function HistoryPage() {
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full bg-[#111111] border border-[var(--color-border)] rounded-lg pl-9 pr-3 py-2 text-[12px] text-[#e5e5e5] placeholder:text-[#2a2a2a] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120"
+            className="w-full bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg pl-9 pr-3 py-2 text-[12px] text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120"
           />
         </div>
         <div className="relative">
@@ -144,13 +144,13 @@ export default function HistoryPage() {
               setFilter(e.target.value as FilterType);
               setPage(1);
             }}
-            className="appearance-none w-full sm:w-auto bg-[#111111] border border-[var(--color-border)] rounded-lg px-3 py-2 pr-8 text-[12px] text-[#a3a3a3] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120 cursor-pointer"
+            className="appearance-none w-full sm:w-auto bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg px-3 py-2 pr-8 text-[12px] text-[var(--color-accent-dim)] focus:outline-none focus:border-[var(--color-border-hover)] transition-colors duration-120 cursor-pointer"
           >
             <option value="all">All</option>
             <option value="success">Success</option>
             <option value="failed">Failed</option>
           </select>
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-[#3a3a3a] pointer-events-none" />
+          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-[var(--color-muted)] pointer-events-none" />
         </div>
       </div>
 
@@ -169,13 +169,13 @@ export default function HistoryPage() {
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-2">
             <FileText className="w-8 h-8 text-[#1a1a1a]" />
-            <p className="text-[13px] text-[#3a3a3a]">
+            <p className="text-[13px] text-[var(--color-muted)]">
               {search ? "No matching entries" : "No obfuscation history"}
             </p>
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="text-[12px] text-[#525252] hover:text-[#a3a3a3] transition-colors duration-120 underline underline-offset-2"
+                className="text-[12px] text-[var(--color-muted)] hover:text-[var(--color-accent-dim)] transition-colors duration-120 underline underline-offset-2"
               >
                 Clear search
               </button>
@@ -184,7 +184,7 @@ export default function HistoryPage() {
         ) : (
           <>
             {/* Table Header */}
-            <div className="hidden md:grid grid-cols-[minmax(0,1fr)_86px_86px_82px_112px_36px] gap-3 px-4 py-2 border-b border-[var(--color-border)] text-[10px] text-[#3a3a3a] uppercase tracking-wider font-medium">
+            <div className="hidden md:grid grid-cols-[minmax(0,1fr)_86px_86px_82px_112px_36px] gap-3 px-4 py-2 border-b border-[var(--color-border)] text-[10px] text-[var(--color-muted)] uppercase tracking-wider font-medium">
               <span>File</span>
               <span>Original</span>
               <span>Protected</span>
@@ -196,53 +196,53 @@ export default function HistoryPage() {
               {items.map((item, idx) => (
                 <div
                   key={item.id}
-                  className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_86px_86px_82px_112px_36px] gap-2 md:gap-3 px-4 py-3 hover:bg-[#141414] transition-colors duration-120 animate-fade-in"
+                  className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_86px_86px_82px_112px_36px] gap-2 md:gap-3 px-4 py-3 hover:bg-[var(--color-surface)] transition-colors duration-120 animate-fade-in"
                   style={{ animationDelay: `${Math.min(idx, 10) * 30}ms` }}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     {item.success ? (
-                      <CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" />
+                      <CheckCircle2 className="w-3 h-3 text-[var(--color-success)] shrink-0" />
                     ) : (
-                      <XCircle className="w-3 h-3 text-red-400 shrink-0" />
+                      <XCircle className="w-3 h-3 text-[var(--color-error)] shrink-0" />
                     )}
-                    <span className="text-[12px] text-[#a3a3a3] font-mono truncate">
+                    <span className="text-[12px] text-[var(--color-accent-dim)] font-mono truncate">
                       {item.fileName}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-x-3 gap-y-1 pl-5 md:hidden">
-                    <span className="text-[10px] text-[#3a3a3a]">Original</span>
-                    <span className="text-[11px] text-[#525252] font-mono text-right">
+                    <span className="text-[10px] text-[var(--color-muted)]">Original</span>
+                    <span className="text-[11px] text-[var(--color-muted)] font-mono text-right">
                       {formatBytes(item.originalSize)}
                     </span>
-                    <span className="text-[10px] text-[#3a3a3a]">Protected</span>
-                    <span className="text-[11px] text-[#525252] font-mono text-right">
+                    <span className="text-[10px] text-[var(--color-muted)]">Protected</span>
+                    <span className="text-[11px] text-[var(--color-muted)] font-mono text-right">
                       {formatBytes(item.encryptedSize)}
                     </span>
-                    <span className="text-[10px] text-[#3a3a3a]">Time</span>
-                    <span className="text-[11px] text-[#525252] font-mono text-right">
+                    <span className="text-[10px] text-[var(--color-muted)]">Time</span>
+                    <span className="text-[11px] text-[var(--color-muted)] font-mono text-right">
                       {formatMs(item.encryptionTimeMs)}
                     </span>
-                    <span className="text-[10px] text-[#3a3a3a]">Date</span>
-                    <span className="text-[11px] text-[#525252] text-right">
+                    <span className="text-[10px] text-[var(--color-muted)]">Date</span>
+                    <span className="text-[11px] text-[var(--color-muted)] text-right">
                       {formatDate(item.createdAt)}
                     </span>
                   </div>
-                  <span className="hidden md:block text-[11px] text-[#525252] font-mono">
+                  <span className="hidden md:block text-[11px] text-[var(--color-muted)] font-mono">
                     {formatBytes(item.originalSize)}
                   </span>
-                  <span className="hidden md:block text-[11px] text-[#525252] font-mono">
+                  <span className="hidden md:block text-[11px] text-[var(--color-muted)] font-mono">
                     {formatBytes(item.encryptedSize)}
                   </span>
-                  <span className="hidden md:block text-[11px] text-[#525252] font-mono">
+                  <span className="hidden md:block text-[11px] text-[var(--color-muted)] font-mono">
                     {formatMs(item.encryptionTimeMs)}
                   </span>
-                  <span className="hidden md:block text-[11px] text-[#3a3a3a]">
+                  <span className="hidden md:block text-[11px] text-[var(--color-muted)]">
                     {formatDate(item.createdAt)}
                   </span>
                   <div className="flex items-center justify-end gap-1">
                     <button
                       onClick={() => deleteItem(item.id)}
-                      className="text-[#2a2a2a] hover:text-red-400 transition-colors duration-120 p-1"
+                      className="text-[var(--color-muted)] hover:text-[var(--color-error)] transition-colors duration-120 p-1"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -259,15 +259,15 @@ export default function HistoryPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-3 py-1.5 rounded-lg bg-[#111111] border border-[var(--color-border)] text-[11px] text-[#525252] hover:text-[#a3a3a3] disabled:opacity-30 transition-all duration-120"
+            className="px-3 py-1.5 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] text-[11px] text-[var(--color-muted)] hover:text-[var(--color-accent-dim)] disabled:opacity-30 transition-all duration-120"
           >
             Previous
           </button>
-          <span className="text-[11px] text-[#3a3a3a] font-mono">Page {page}</span>
+          <span className="text-[11px] text-[var(--color-muted)] font-mono">Page {page}</span>
           <button
             onClick={() => setPage((p) => p + 1)}
             disabled={!hasMore}
-            className="px-3 py-1.5 rounded-lg bg-[#111111] border border-[var(--color-border)] text-[11px] text-[#525252] hover:text-[#a3a3a3] disabled:opacity-30 transition-all duration-120"
+            className="px-3 py-1.5 rounded-lg bg-[var(--color-bg-secondary)] border border-[var(--color-border)] text-[11px] text-[var(--color-muted)] hover:text-[var(--color-accent-dim)] disabled:opacity-30 transition-all duration-120"
           >
             Next
           </button>

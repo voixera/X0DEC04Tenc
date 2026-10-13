@@ -45,8 +45,16 @@ import {
   UserRound,
   Mail,
   ShieldCheck,
+  ArrowRight,
+  GitBranch,
+  ChevronLeft,
+  Code2,
+  Layers,
+  Wand2,
+  FileCode2,
+  Scan,
+  Sparkle,
 } from "lucide-react";
-
 export {
   LayoutDashboard,
   Shield,
@@ -92,4 +100,13 @@ export {
   UserRound,
   Mail,
   ShieldCheck,
+  ArrowRight,
+  GitBranch,
+  ChevronLeft,
+  Code2,
+  Layers,
+  Wand2,
+  FileCode2,
+  Scan,
+  Sparkle,
 };

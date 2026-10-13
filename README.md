@@ -60,6 +60,39 @@ src/lib/obf/errors.ts         Typed ObfuscationError + phases
 src/app/api/encrypt/route.ts  HTTP endpoint; gates success on validation
 ```
 
+## Interface
+
+The web interface is a chocolate-themed, editorial workspace:
+
+- **Landing hero** (unauthenticated) — an asymmetric composition with an editorial
+  serif headline, a WebGL chocolate centerpiece, and the real login/signup form.
+- **Workspace** — a three-group sidebar (Workspace / Account / Reference) and a
+  compact topbar with a chocolate theme switcher.
+- **Obfuscator** — a drop zone, batch queue, live log, and an output preview with
+  lightweight syntax highlighting, wired to the real engine (never faked).
+
+### Design system
+
+- **Palette** — deep cocoa surfaces (`#160c09`–`#67402c`), warm cream type
+  (`#f2e6d8`), caramel accent (`#a56c43`), muted beige; sampled from the logo.
+  Tokens live in `src/app/globals.css` under `@theme`.
+- **Themes** — `cocoa` (default), `milk`, `praline`, applied via
+  `body[data-theme]`. The switcher persists to the existing `x0d-theme` key.
+- **Type** — DM Serif Display (display), Inter (UI), JetBrains Mono (code).
+- **Motion** — GSAP for the hero and workflow timelines; Framer Motion for
+  interaction and micro-detail. WebGL uses React Three Fiber.
+
+### Interface stack
+
+- `framer-motion` — component/interaction motion.
+- `gsap` (+ ScrollTrigger) — hero entrance and scroll-driven workflow timeline,
+  lazy-imported so it is not in the critical path.
+- `three`, `@react-three/fiber`, `@react-three/drei` — the WebGL centerpiece,
+  lazy-loaded, with a static logo fallback and reduced-motion/off-screen pausing.
+
+The WebGL scene degrades to a static branded visual when WebGL is unavailable or
+`prefers-reduced-motion` is set; the hero remains fully usable either way.
+
 ## Development
 
 ```bash

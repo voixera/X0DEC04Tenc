@@ -1,19 +1,16 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import {
   FileText,
   Shield,
   Clock,
-  Zap,
-  AlertCircle,
-  AlertTriangle,
   ChevronRight,
-  Cpu,
-  Database,
-  KeyRound,
+  AlertCircle,
+  ArrowRight,
 } from "@/components/icons";
-import { formatMs, formatDate, cn } from "@/lib/utils";
+import { formatMs, formatDate } from "@/lib/utils";
 import { getClientUserId } from "@/lib/user";
 import {
   addStats,
@@ -24,62 +21,24 @@ import {
 import type { StatsData, HistoryItem } from "@/lib/types";
 import { useAppStore } from "@/lib/store";
 
-type StatTone = "neutral" | "success" | "danger" | "info" | "warning";
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  index,
-  tone = "neutral",
-}: {
-  label: string;
-  value: string;
-  icon: typeof FileText;
-  index: number;
-  tone?: StatTone;
-}) {
-  const toneClasses: Record<StatTone, string> = {
-    neutral: "bg-[#181818] text-[#737373]",
-    success: "bg-green-500/10 text-green-400",
-    danger: "bg-red-500/10 text-red-400",
-    info: "bg-blue-500/10 text-blue-400",
-    warning: "bg-amber-500/10 text-amber-400",
-  };
-
+function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div
-      className="metric-card min-h-[112px] p-4 animate-fade-in overflow-hidden"
-      style={{ animationDelay: `${index * 60}ms` }}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] text-[#525252] font-medium uppercase tracking-wider truncate pr-2">
-          {label}
-        </span>
-        <div
-          className={cn(
-            "w-7 h-7 rounded-lg border border-[var(--color-border)] flex items-center justify-center shrink-0",
-            toneClasses[tone]
-          )}
-        >
-          <Icon className="w-3.5 h-3.5" />
-        </div>
-      </div>
-      <span className="block text-[22px] font-semibold text-[#e5e5e5] tracking-tight leading-tight break-words">
+    <div className="min-w-0 flex-1 px-1">
+      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-muted)]">
+        {label}
+      </p>
+      <p className="mt-2 font-display text-[1.9rem] leading-none text-[color:var(--color-text)]">
         {value}
-      </span>
+      </p>
     </div>
   );
 }
 
-function SkeletonCard() {
+function StatSkeleton() {
   return (
-    <div className="min-h-[112px] bg-[#111111] border border-[var(--color-border)] rounded-lg p-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="skeleton w-16 h-3" />
-        <div className="skeleton w-7 h-7 rounded-lg" />
-      </div>
-      <div className="skeleton w-20 h-6 mt-1" />
+    <div className="min-w-0 flex-1 px-1">
+      <div className="skeleton h-3 w-16" />
+      <div className="skeleton mt-3 h-7 w-20" />
     </div>
   );
 }
@@ -111,7 +70,6 @@ export default function DashboardPage() {
     } catch (e) {
       const userId = getClientUserId();
       const localRecent = queryLocalHistory({ userId, limit: 5 }).items;
-
       if (localRecent.length > 0) {
         setStats(getLocalStats(userId));
         setHistory(localRecent);
@@ -125,21 +83,18 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      void fetchData();
-    }, 0);
-
+    const timer = window.setTimeout(() => void fetchData(), 0);
     return () => window.clearTimeout(timer);
   }, [fetchData]);
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 animate-fade-in">
-        <AlertCircle className="w-8 h-8 text-[#525252]" />
-        <p className="text-[13px] text-[#525252]">{error}</p>
+      <div className="flex min-h-[400px] flex-col items-center justify-center gap-3 animate-fade-in">
+        <AlertCircle className="h-8 w-8 text-[var(--color-muted)]" />
+        <p className="text-[13px] text-[var(--color-muted)]">{error}</p>
         <button
           onClick={fetchData}
-          className="text-[12px] text-[#737373] hover:text-[#e5e5e5] transition-colors duration-120 underline underline-offset-2"
+          className="text-[12px] text-[var(--color-accent-dim)] underline underline-offset-2 transition-colors hover:text-[var(--color-text)]"
         >
           Retry
         </button>
@@ -148,111 +103,102 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <section className="console-hero relative overflow-hidden rounded-2xl px-5 py-6 sm:px-7 sm:py-8">
-        <div className="console-grid absolute inset-y-0 right-0 hidden w-1/2 sm:block" />
-        <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
-          <div className="max-w-xl">
-            <p className="font-mono text-[10px] font-semibold uppercase tracking-[.22em] text-emerald-400">Lua / Luau obfuscation console</p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--color-text)] sm:text-3xl">Build protected scripts and audit every run.</h2>
-            <p className="mt-2 max-w-lg text-sm leading-6 text-[var(--color-accent-dim)]">Queue source files, apply your preset, then review per-account history from the same workspace.</p>
-            <button onClick={() => setCurrentPage("encrypt")} className="primary-action mt-5 px-4 py-2.5 text-xs transition active:translate-y-0">Open encrypt queue</button>
+    <div className="animate-fade-in space-y-8">
+      {/* ---- Editorial hero band ---- */}
+      <section className="cocoa-grain relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-secondary)] px-6 py-10 sm:px-10 sm:py-14">
+        <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-end">
+          <div className="max-w-2xl">
+            <p className="eyebrow">Obfuscation workspace</p>
+            <h2 className="display-xl mt-4 text-[color:var(--color-text)]">
+              Build protected scripts, audit every run.
+            </h2>
+            <p className="lede mt-4 max-w-lg">
+              Queue Luau source, apply your preset, and review per-account
+              history — all from one console. Output is validated before it is
+              ever reported as done.
+            </p>
+            <motion.button
+              whileHover={{ y: -2 }}
+              whileTap={{ y: 1, scale: 0.99 }}
+              transition={{ type: "spring", stiffness: 400, damping: 28 }}
+              onClick={() => setCurrentPage("encrypt")}
+              className="primary-action mt-7 inline-flex items-center gap-2 px-5 py-3 text-sm"
+            >
+              Open obfuscation queue
+              <ArrowRight className="h-4 w-4" />
+            </motion.button>
           </div>
-          <div className="hidden rounded-xl border border-emerald-400/15 bg-black/25 p-4 font-mono text-[11px] text-emerald-100/80 shadow-inner lg:block">
-            <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[.18em] text-emerald-400">
-              <span>pipeline.lua</span>
-              <span>ready</span>
+
+          {/* Editorial pipeline note (factual steps of the real engine) */}
+          <div className="code-surface hidden px-5 py-4 text-[11px] leading-relaxed lg:block">
+            <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-[var(--color-muted)]">
+              <span>pipeline</span>
+              <span className="text-[var(--color-brand)]">ready</span>
             </div>
             <div className="space-y-2">
-              <p><span className="text-zinc-500">01</span> scan identifiers</p>
-              <p><span className="text-zinc-500">02</span> encrypt strings</p>
-              <p><span className="text-zinc-500">03</span> encode constants</p>
-              <p><span className="text-zinc-500">04</span> write history row</p>
+              <p><span className="code-token-number">01</span> <span className="code-token-plain">tokenize source</span></p>
+              <p><span className="code-token-number">02</span> <span className="code-token-plain">scope-aware rename</span></p>
+              <p><span className="code-token-number">03</span> <span className="code-token-plain">encode strings</span></p>
+              <p><span className="code-token-number">04</span> <span className="code-token-plain">validate output</span></p>
             </div>
           </div>
         </div>
       </section>
-      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 xl:grid-cols-5 gap-3">
+
+      {/* ---- Inline stat strip (not a card grid) ---- */}
+      <section className="panel flex flex-wrap items-stretch gap-y-6 divide-y divide-[var(--color-border)] px-6 py-6 sm:flex-nowrap sm:divide-y-0 sm:divide-x">
         {loading ? (
           <>
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
           </>
         ) : stats ? (
           <>
-            <StatCard
-              label="Total Files"
-              value={stats.totalFiles.toLocaleString()}
-              icon={Database}
-              index={0}
-              tone="neutral"
-            />
-            <StatCard
-              label="Obfuscated"
-              value={stats.totalEncrypted.toLocaleString()}
-              icon={KeyRound}
-              index={1}
-              tone="success"
-            />
-            <StatCard
-              label="Failed"
-              value={stats.totalFailed.toLocaleString()}
-              icon={AlertTriangle}
-              index={2}
-              tone="danger"
-            />
-            <StatCard
-              label="Avg Time"
-              value={formatMs(stats.avgProcessTimeMs)}
-              icon={Cpu}
-              index={3}
-              tone="info"
-            />
-            <StatCard
-              label="Success Rate"
-              value={`${stats.successRate}%`}
-              icon={Zap}
-              index={4}
-              tone="warning"
-            />
+            <Stat label="Total files" value={stats.totalFiles.toLocaleString()} />
+            <Stat label="Obfuscated" value={stats.totalEncrypted.toLocaleString()} />
+            <Stat label="Failed" value={stats.totalFailed.toLocaleString()} />
+            <Stat label="Success rate" value={`${stats.successRate}%`} />
+            <Stat label="Avg time" value={formatMs(stats.avgProcessTimeMs)} />
           </>
         ) : null}
-      </div>
+      </section>
 
-      <div className="panel overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-border)]">
-          <span className="text-[13px] font-medium text-[#e5e5e5]">
-            Recent Activity
-          </span>
+      {/* ---- Recent activity ---- */}
+      <section className="panel overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
+          <h3 className="font-display text-lg text-[color:var(--color-text)]">
+            Recent activity
+          </h3>
           <button
             onClick={() => setCurrentPage("history")}
-            className="text-[11px] text-[#525252] hover:text-[#a3a3a3] flex items-center gap-1 transition-colors duration-120"
+            className="flex items-center gap-1 text-[11px] text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
           >
             View all
-            <ChevronRight className="w-3 h-3" />
+            <ChevronRight className="h-3 w-3" />
           </button>
         </div>
 
         {loading ? (
-          <div className="p-4 space-y-3">
+          <div className="space-y-3 p-5">
             {[0, 1, 2].map((i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="skeleton w-4 h-4 rounded" />
-                <div className="skeleton flex-1 h-4" />
-                <div className="skeleton w-16 h-4" />
+                <div className="skeleton h-4 w-4 rounded" />
+                <div className="skeleton h-4 flex-1" />
+                <div className="skeleton h-4 w-16" />
               </div>
             ))}
           </div>
         ) : history.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-2">
-            <FileText className="w-6 h-6 text-[#2a2a2a]" />
-            <p className="text-[12px] text-[#525252]">No obfuscation activity yet</p>
+          <div className="flex flex-col items-center justify-center gap-2 py-16">
+            <FileText className="h-6 w-6 text-[var(--color-muted)]" />
+            <p className="text-[12px] text-[var(--color-muted)]">
+              No obfuscation activity yet
+            </p>
             <button
               onClick={() => setCurrentPage("encrypt")}
-              className="text-[12px] text-[#737373] hover:text-[#e5e5e5] transition-colors duration-120 mt-1 underline underline-offset-2"
+              className="mt-1 text-[12px] text-[var(--color-accent-dim)] underline underline-offset-2 transition-colors hover:text-[var(--color-text)]"
             >
               Obfuscate your first file
             </button>
@@ -262,58 +208,51 @@ export default function DashboardPage() {
             {history.map((item, idx) => (
               <div
                 key={item.id}
-                className="grid grid-cols-[auto_minmax(0,1fr)_auto] sm:grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-3 px-4 py-3 hover:bg-[#141414] transition-colors duration-120 animate-fade-in"
+                className="grid animate-fade-in grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-5 py-3.5 transition-colors hover:bg-[color-mix(in_srgb,var(--color-brand)_6%,transparent)] sm:grid-cols-[auto_minmax(0,1fr)_auto_auto]"
                 style={{ animationDelay: `${idx * 40}ms` }}
               >
-                <div
-                  className={cn(
-                    "w-1.5 h-1.5 rounded-full shrink-0",
-                    item.success ? "bg-green-500" : "bg-red-500"
-                  )}
+                <span
+                  className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                    item.success
+                      ? "bg-[var(--color-success)]"
+                      : "bg-[var(--color-error)]"
+                  }`}
                 />
-                <span className="text-[12px] text-[#a3a3a3] flex-1 truncate font-mono">
+                <span className="flex-1 truncate font-mono text-[12px] text-[var(--color-accent-dim)]">
                   {item.fileName}
                 </span>
-                <span className="text-[11px] text-[#525252] shrink-0 font-mono">
+                <span className="shrink-0 font-mono text-[11px] text-[var(--color-muted)]">
                   {formatMs(item.encryptionTimeMs)}
                 </span>
-                <span className="text-[11px] text-[#3a3a3a] shrink-0 hidden sm:block">
+                <span className="hidden shrink-0 text-[11px] text-[var(--color-muted)] sm:block">
                   {formatDate(item.createdAt)}
                 </span>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </section>
 
-      <div className="panel p-4">
-        <h3 className="text-[13px] font-medium text-[#e5e5e5] mb-3">
-          Quick Actions
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+      {/* ---- Quick actions ---- */}
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {[
+          { label: "Obfuscate files", icon: Shield, page: "encrypt" as const },
+          { label: "View history", icon: Clock, page: "history" as const },
+          { label: "Read documentation", icon: FileText, page: "documentation" as const },
+        ].map((a) => (
           <button
-            onClick={() => setCurrentPage("encrypt")}
-            className="secondary-action flex items-center gap-2.5 px-3 py-2.5 text-[12px] transition-all duration-120"
+            key={a.page}
+            onClick={() => setCurrentPage(a.page)}
+            className="secondary-action motion-press flex items-center justify-between gap-2 px-4 py-3.5 text-[12px]"
           >
-            <Shield className="w-3.5 h-3.5" />
-            Obfuscate Files
+            <span className="flex items-center gap-2.5">
+              <a.icon className="h-4 w-4" />
+              {a.label}
+            </span>
+            <ArrowRight className="h-3.5 w-3.5 opacity-50" />
           </button>
-          <button
-            onClick={() => setCurrentPage("history")}
-            className="secondary-action flex items-center gap-2.5 px-3 py-2.5 text-[12px] transition-all duration-120"
-          >
-            <Clock className="w-3.5 h-3.5" />
-            View History
-          </button>
-          <button
-            onClick={() => setCurrentPage("documentation")}
-            className="secondary-action flex items-center gap-2.5 px-3 py-2.5 text-[12px] transition-all duration-120"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            Read Docs
-          </button>
-        </div>
-      </div>
+        ))}
+      </section>
     </div>
   );
 }
