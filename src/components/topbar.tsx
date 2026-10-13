@@ -1,18 +1,26 @@
 "use client";
 
+/**
+ * LabTopbar — the workspace top strip.
+ *
+ * A ruled editorial header instead of the previous glass bar: a mono channel
+ * label, the page title in display type, and instrument-style controls on the
+ * right (processing state, theme, account, version). All behaviour is unchanged.
+ */
+
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useAppStore, useEncryptStore } from "@/lib/store";
 import { LogOut, Menu, Loader2, Moon, Sun, Sparkles } from "@/components/icons";
 
-const pageLabels: Record<string, string> = {
-  dashboard: "Dashboard",
-  encrypt: "Obfuscate",
-  history: "History",
-  settings: "Settings",
-  account: "Profile",
-  documentation: "Documentation",
-  about: "About",
+const pageLabels: Record<string, { title: string; channel: string }> = {
+  dashboard: { title: "Overview", channel: "CH-01" },
+  encrypt: { title: "Obfuscate", channel: "CH-02" },
+  history: { title: "Runs", channel: "CH-03" },
+  settings: { title: "Settings", channel: "CH-05" },
+  account: { title: "Profile", channel: "CH-04" },
+  documentation: { title: "Documentation", channel: "CH-06" },
+  about: { title: "About", channel: "CH-07" },
 };
 
 type Theme = "cocoa" | "milk" | "praline";
@@ -23,18 +31,16 @@ const themeMeta: Record<Theme, { label: string; Icon: typeof Moon; next: Theme }
   praline: { label: "Praline", Icon: Sparkles, next: "cocoa" },
 };
 
-export default function Topbar() {
+export default function LabTopbar() {
   const { currentPage, toggleSidebar } = useAppStore();
   const isProcessing = useEncryptStore((s) => s.isProcessing);
   const [theme, setTheme] = useState<Theme>("cocoa");
   const [user, setUser] = useState<{ username: string } | null>(null);
 
-  // Sync theme to the DOM (external system) and load the session user.
   useEffect(() => {
     document.body.dataset.theme = theme;
   }, [theme]);
 
-  // Adopt the stored theme after mount (avoids SSR hydration mismatch).
   useEffect(() => {
     const saved = localStorage.getItem("x0d-theme");
     const id = window.setTimeout(() => {
@@ -64,9 +70,11 @@ export default function Topbar() {
     location.reload();
   };
 
+  const page = pageLabels[currentPage] ?? pageLabels.dashboard;
+
   return (
-    <header className="topbar-glass sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-[var(--color-border)] px-4 backdrop-blur-xl lg:px-6">
-      <div className="flex min-w-0 items-center gap-3">
+    <header className="topbar-glass sticky top-0 z-30 flex h-[74px] items-center justify-between gap-3 border-b border-[var(--color-border)] px-4 backdrop-blur-xl lg:px-7">
+      <div className="flex min-w-0 items-center gap-4">
         <button
           onClick={toggleSidebar}
           aria-label="Open navigation"
@@ -74,21 +82,23 @@ export default function Topbar() {
         >
           <Menu className="h-5 w-5" />
         </button>
+        <div className="hidden items-center gap-2 sm:flex">
+          <span className="index-num">{page.channel}</span>
+          <span className="h-3 w-px bg-[var(--color-border-strong)]" />
+        </div>
         <div className="min-w-0">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--color-muted)]">
-            Choco OBF
-          </p>
-          <h1 className="truncate font-display text-[17px] leading-tight text-[color:var(--color-text)]">
-            {pageLabels[currentPage] || "Dashboard"}
+          <p className="type-label">Choco OBF / Workspace</p>
+          <h1 className="truncate font-display text-[19px] leading-tight text-[var(--color-text)]">
+            {page.title}
           </h1>
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-3 sm:gap-4">
         {isProcessing && (
-          <div className="flex items-center gap-2 text-[12px] text-[var(--color-accent-dim)]">
+          <div className="flex items-center gap-2 text-[12px] text-[var(--color-text-dim)]">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            <span className="hidden sm:inline">Processing</span>
+            <span className="type-label hidden sm:inline">PROCESSING</span>
           </div>
         )}
 
@@ -114,7 +124,7 @@ export default function Topbar() {
           </button>
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="hidden items-center gap-2 sm:flex">
           <span className="font-mono text-[11px] text-[var(--color-muted)]">v2.0.0</span>
           <motion.span
             className={`h-1.5 w-1.5 rounded-full ${

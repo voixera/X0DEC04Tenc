@@ -1,26 +1,21 @@
 "use client";
 
 /**
- * ChocolateVisual — resilient wrapper around the WebGL centerpiece.
+ * CocoaScene — resilient wrapper around the WebGL centerpiece.
  *
- * Responsibilities:
- *  - Detect WebGL support and `prefers-reduced-motion`.
- *  - Lazy-load the heavy R3F scene only when appropriate.
- *  - Pause rendering when the document is hidden or the element is off-screen.
- *  - Always render a graceful static fallback (the logo) when WebGL is
- *    unavailable, reduced motion is requested, or the scene is loading.
- *
- * The hero remains fully usable regardless of whether this ever mounts.
+ * Detects WebGL + reduced-motion, lazy-loads the heavy scene after first paint,
+ * pauses when the tab is hidden or the canvas leaves the viewport, and always
+ * renders a material static fallback (the real logo) when 3D is unavailable.
+ * The hero is fully usable regardless of whether this ever mounts.
  */
 
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 
-const ChocolateCenterpiece = lazy(() => import("./chocolate-centerpiece"));
+const CocoaLattice = lazy(() => import("./cocoa-lattice"));
 
 const STATIC_FALLBACK = (
   <div className="absolute inset-0 grid place-items-center" aria-hidden="true">
     <div className="hero-fallback-glow" />
-    {/* The real brand asset stands in for the 3D form. */}
     <div className="hero-fallback-mark" role="img" aria-label="Choco OBF logo" />
   </div>
 );
@@ -37,28 +32,24 @@ function supportsWebGL(): boolean {
   }
 }
 
-export default function ChocolateVisual({ className }: { className?: string }) {
+export default function CocoaScene({ className }: { className?: string }) {
   const [enabled, setEnabled] = useState(false);
   const [visible, setVisible] = useState(true);
   const hostRef = useRef<HTMLDivElement>(null);
 
-  // Decide whether to run WebGL at all (once, client-side).
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce || !supportsWebGL()) return;
-    // Defer the heavy import until after first paint so the hero is instant.
-    const id = window.setTimeout(() => setEnabled(true), 250);
+    const id = window.setTimeout(() => setEnabled(true), 200);
     return () => window.clearTimeout(id);
   }, []);
 
-  // Pause when the tab is hidden.
   useEffect(() => {
     const onVisibility = () => setVisible(!document.hidden);
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  // Pause when scrolled out of view.
   useEffect(() => {
     const el = hostRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
@@ -72,7 +63,6 @@ export default function ChocolateVisual({ className }: { className?: string }) {
 
   return (
     <div ref={hostRef} className={className}>
-      {/* Static fallback fades out once the WebGL scene is live. */}
       <div
         className="absolute inset-0 transition-opacity duration-700"
         style={{ opacity: enabled ? 0 : 1 }}
@@ -81,9 +71,12 @@ export default function ChocolateVisual({ className }: { className?: string }) {
         {STATIC_FALLBACK}
       </div>
       {enabled && (
-        <div className="absolute inset-0" style={{ opacity: visible ? 1 : 0, transition: "opacity 480ms ease" }}>
+        <div
+          className="absolute inset-0"
+          style={{ opacity: visible ? 1 : 0, transition: "opacity 480ms ease" }}
+        >
           <Suspense fallback={null}>
-            <ChocolateCenterpiece />
+            <CocoaLattice />
           </Suspense>
         </div>
       )}

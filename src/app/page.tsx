@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense, lazy } from "react";
-import Sidebar from "@/components/sidebar";
-import Topbar from "@/components/topbar";
+import LabRail from "@/components/sidebar";
+import LabTopbar from "@/components/topbar";
 import NotificationProvider from "@/components/notification-provider";
 import AuthGate from "@/components/auth-gate";
 import { useAppStore } from "@/lib/store";
@@ -54,10 +54,10 @@ function PageRenderer() {
 export default function Home() {
   return (
     <AuthGate>
-      <div className="premium-shell flex min-h-screen overflow-x-hidden">
-        <Sidebar />
-        <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:ml-[232px]">
-          <Topbar />
+      <div className="cocoa-ground flex min-h-screen overflow-x-hidden">
+        <LabRail />
+        <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:ml-[236px]">
+          <LabTopbar />
           <main className="min-w-0 flex-1 p-4 lg:p-7">
             <PageRenderer />
           </main>
